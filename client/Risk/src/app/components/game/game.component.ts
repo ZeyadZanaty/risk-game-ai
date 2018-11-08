@@ -84,6 +84,7 @@ export class GameComponent implements OnInit {
       }
     }},200)
   }
+
   onAttacking(territory){
     this.attackeeTerritory = null;
     for(let t of this.currentPlayer.territories){
@@ -92,7 +93,16 @@ export class GameComponent implements OnInit {
         this.attackingTerritory=t;
       }
     }
+    this.attackableTerritories = [];
+    setTimeout(()=>{
+    for(let t of this.attackingTerritory.adjacent_territories){
+      if(this.attackerTerritories.indexOf(t)==-1){
+        console.log(t)
+        this.attackableTerritories.push(t);
+      }
+    }},200)
   }
+
   onAttackee(territory){
     for(let t of this.game.territories){
       if(territory == t.name){
