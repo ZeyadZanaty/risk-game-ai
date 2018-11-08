@@ -5,7 +5,7 @@ from troop import Troop
 import random
 from enum import Enum
 
-
+starting_troops = 20
 usa_states = {"Alabama":["Mississippi","Tennessee","Florida","Georgia"],
   "Alaska":["Hawaii","California","Arizona"],
   "Arizona":["California","Nevada","Utah","New Mexico"],
@@ -83,7 +83,7 @@ egypt_states = {"Alexandria":["Beheira","Matruh"],
     "Sohag":["Asyut","Qena","Red Sea","New Valley"],
     "South Sinai":["Suez","North Sinai"],
     "Suez":["Giza","Cairo","North Sinai","South Sinai","Sharqia","Ismailia"]}
-colors = ['red','blue','green','yellow']
+colors = ['red','blue','green','yellow','black','white']
 class Game:
 
     def __init__(self,map,mode=0,players_num=2,player_turn=0,state=None):
@@ -113,9 +113,17 @@ class Game:
             self.players.append(Player(i,colors[i]))
 
     def generate_troops(self):
-        for player in self.players:
-            player.troops=[]
-            player.generate_starting_troops(self.territories)
+        for i in range(0,starting_troops):
+            for player in self.players:
+                if player.troops is None:
+                    player.troops=[]
+                if player.territories is None:
+                    player.territories = []
+                troop = Troop(i,player,2)
+                troop.assign_to_territory(self.territories)
+                player.troops.append(troop)
+
+    
 
     def json(self):
         return {

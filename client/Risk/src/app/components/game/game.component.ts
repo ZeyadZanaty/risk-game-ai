@@ -25,7 +25,7 @@ export class GameComponent implements OnInit {
   attackableTerritories:any=[];
   attackingTerritory:any;
   attackeeTerritory:any;
-  attackingTroopsNum:number;
+  attackingTroopsNum:number=1;
   constructor(private gameService:GameService,private messageService: MessageService) { }
 
   ngOnInit() {
@@ -97,7 +97,6 @@ export class GameComponent implements OnInit {
     setTimeout(()=>{
     for(let t of this.attackingTerritory.adjacent_territories){
       if(this.attackerTerritories.indexOf(t)==-1){
-        console.log(t)
         this.attackableTerritories.push(t);
       }
     }},200)

@@ -33,7 +33,7 @@ export class EgyptMapComponent implements OnInit {
       this.attackeeTerritory = territory;
     }
     else{
-      this.messageService.add({severity:'error', summary: "Can't use this territory", detail:"Select another one"});
+      this.messageService.add({severity:'error', summary: "Terrritory Unusable", detail:"Please select another one.."});
     }
   }
 

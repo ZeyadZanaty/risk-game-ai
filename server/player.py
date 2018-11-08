@@ -14,12 +14,12 @@ class Player:
     def __str__(self):
         return str(self.__class__) + ": " + str(self.__dict__)
 
-    def generate_starting_troops(self,territories):
-        self.territories = []
-        for i in range(0,starting_troops):
-            troop = Troop(i,self,2)
-            troop.assign_to_territory(territories)
-            self.troops.append(troop)
+    # def generate_starting_troops(self,territories):
+    #     self.territories = []
+    #     for i in range(0,starting_troops):
+    #         troop = Troop(i,self,2)
+    #         troop.assign_to_territory(territories)
+    #         self.troops.append(troop)
 
     def attack(self,game,attacking_troops,my_territory,other_player,other_territory):
         if my_territory not in self.territories:
