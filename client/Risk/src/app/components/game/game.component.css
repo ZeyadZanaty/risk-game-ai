@@ -1,0 +1,16 @@
+.controls{
+  margin-top:3%;
+  text-align: center;
+  position: relative;
+}
+.usa{
+  margin-left: 20%;
+  margin-top:2%
+}
+.egypt{
+  margin-top:200px;
+}
+.stats{
+  width: 280px;
+  position: fixed;
+}

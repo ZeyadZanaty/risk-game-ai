@@ -1,0 +1,12 @@
+path{
+  fill:grey;
+}
+path:hover{
+  fill:yellow;
+}
+svg{
+  transform-origin: 0 0;
+  margin-left: -100px;
+  width: 1500px;
+  height: 680px;
+}

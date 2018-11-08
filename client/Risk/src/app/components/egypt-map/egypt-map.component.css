@@ -1,0 +1,34 @@
+.states{
+transform: translate(-2450px,-400px) scaleX(5.3) scaleY(5);
+transform-origin: 0 0;
+}
+svg{
+  position: relative;
+  transform-origin: 0 0;
+  margin-top: -200px;
+  width: 700px;
+  height: 600px;
+  margin-left: 100px;
+}
+
+path{
+  fill:#969696;
+  stroke:white;
+  stroke-width:0.3;
+}
+path:hover{
+  fill:#bfbfbf;
+  cursor: grab;
+}
+.attacker{
+  fill:#4ca64c;
+}
+.attacker:hover{
+  fill:#66b266;
+}
+.attackable{
+  fill:#b20000;
+}
+.attackable:hover{
+  fill:#cc0000;
+}

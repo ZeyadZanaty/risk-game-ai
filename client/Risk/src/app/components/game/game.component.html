@@ -1,0 +1,55 @@
+<div class="controls">
+    <div *ngIf="!gameStarted">
+        <h4>Risk</h4>
+        <div style="margin:10px; display:inline-grid;">
+            <label style="display:block; text-align:center;" for="map">Map</label>
+            <p-selectButton id="map" [options]="maps" [(ngModel)]="map"></p-selectButton>
+        </div>
+        <div style="margin:10px; margin-top:15px; display:inline-grid;">
+            <label style="margin-left:12%; display:flex" for="numberDD">Players</label>
+            <p-dropdown id="numberDD" [options]="numberOptions" [(ngModel)]="playersNum"></p-dropdown>
+        </div>
+        <div style="margin:10px; display:inline-grid;">
+            <label style="display:block; text-align:center;" for="modeDD">Game Mode</label>
+            <p-dropdown id="modeDD" [options]="gameModes" [(ngModel)]="gameMode"></p-dropdown>
+        </div>
+        <div style="margin:10px; margin-top:15px; display:inline-grid;">
+            <label style="display:block; text-align:center; color:transparent;" for="startB">~</label>
+            <button id="startB" (click)="startGame()" pButton type="button" label="Start" class="ui-button-success"></button>
+        </div>
+        <br>
+    </div>
+    <div *ngIf="gameStarted">
+        <button id="resetB" (click)="resetGame()" pButton type="button" label="Reset" class="ui-button-success"></button>
+        <div class="stats" *ngIf="gameStarted">
+          <div *ngIf="gameStarted && currentPlayer" class="card text-white bg-secondary mb-3" style="max-width: 18rem; margin-left:20px;">
+            <div class="card-header">Player Stats</div>
+            <div class="card-body">
+              <h5 class="card-title">Player {{currentPlayer.id}}'s Turn</h5>
+              <h5 class="card-title">You're attacking with</h5>
+              <p *ngIf="attackingTerritory" class="card-text">{{attackingTerritory.name}}: {{attackingTerritory.troops.length}} troops</p>
+              <h5 *ngIf="attackeeTerritory" class="card-title">Attacking <span *ngIf="attackeeTerritory.occupying_player">Player {{attackeeTerritory.occupying_player}}'s</span></h5>
+              <p *ngIf="attackeeTerritory" class="card-text">{{attackeeTerritory.name}}<span *ngIf="attackeeTerritory.troops">: {{attackeeTerritory.troops.length}} troops</span></p>
+            </div>
+          </div>
+          <div *ngIf="attackeeTerritory&&attackingTerritory" style="margin-bottom:20px;">
+            Attack with
+          <p-spinner  id="spin" size="5" [(ngModel)]="attackingTroopsNum" [min]="1" [max]="attackingTerritory.troops.length"></p-spinner>
+            troops
+        </div>
+        <div>
+          <button *ngIf="attackeeTerritory&&attackingTerritory" style="margin-right:10px;" (click)="onAttack()"  type="button"  class="btn btn-danger">Attack!</button>
+          <button  (click)="onPass()"  type="button" class="btn btn-success">Pass</button>
+        </div>
+        </div>
+    </div>
+    <div class="usa" *ngIf="map=='USA'">
+        <app-usa-map></app-usa-map>
+    </div>
+    <div class="egypt" *ngIf="map=='Egypt'">
+        <app-egypt-map [allTerritories]="game.territories" [adjacent_territories]="currentAdjacents" (attackingTerritoryChange)="onAttacking($event)" (attackeeTerritoryChange)="onAttackee($event)" [attackerTerritories]="attackerTerritories" [attackableTerritories]="attackableTerritories"></app-egypt-map>
+    </div>
+</div>
+
+
+<p-toast [style]="{marginTop: '80px'}"></p-toast>
