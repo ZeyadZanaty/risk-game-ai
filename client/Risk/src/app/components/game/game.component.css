@@ -14,3 +14,9 @@
   width: 280px;
   position: fixed;
 }
+.game-stats{
+  width:300px;
+  /* position: fixed; */
+  float: right;
+  margin-right: 20px;
+}

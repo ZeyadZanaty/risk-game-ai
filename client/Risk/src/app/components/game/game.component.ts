@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { GameService } from '../../services/game.service'
 import {MessageService} from 'primeng/api';
+import {ConfirmationService} from 'primeng/api';
 
 @Component({
   selector: 'app-game',
   templateUrl: './game.component.html',
   styleUrls: ['./game.component.css'],
-  providers: [MessageService]
+  providers: [MessageService,ConfirmationService]
 })
 export class GameComponent implements OnInit {
 
@@ -19,6 +20,9 @@ export class GameComponent implements OnInit {
   numberOptions:any[];
   gameStarted:boolean = false;
   game:any;
+  gameID:string;
+  displayJoin:boolean=false;
+  joinID:string;
   currentPlayer:any;
   currentAdjacents:any=[];
   attackerTerritories:any=[];
@@ -26,7 +30,8 @@ export class GameComponent implements OnInit {
   attackingTerritory:any;
   attackeeTerritory:any;
   attackingTroopsNum:number=1;
-  constructor(private gameService:GameService,private messageService: MessageService) { }
+  constructor(private gameService:GameService,private messageService: MessageService,
+              private confirmationService:ConfirmationService) { }
 
   ngOnInit() {
     this.maps = [
@@ -57,15 +62,45 @@ export class GameComponent implements OnInit {
       this.game = game
       console.log(game);
       this.currentPlayer = this.game.players[this.game.player_turn];
+      this.gameID = this.game.game_id;
       this.getAttackerTerritories(this.currentPlayer);
     });
   }
 
   resetGame(){
-    this.gameStarted = false;
-    this.gameService.resetGame().subscribe(n=>{
-      this.attackerTerritories =[];
-      this.attackableTerritories =[];
+    this.confirmationService.confirm({
+            message: 'Are you sure that you want to proceed?',
+            header: 'Confirmation',
+            icon: 'pi pi-exclamation-triangle',
+            accept: () => {
+              this.gameStarted = false;
+              this.gameService.resetGame({"gameID":this.gameID}).subscribe(n=>{
+                this.attackerTerritories =[];
+                this.attackableTerritories =[];
+                this.game.territories = [];
+              });
+            },
+            reject: () => {
+            }
+        });
+  }
+
+  joinGame(){
+    this.displayJoin = false;
+    this.gameService.joinGame(this.joinID)
+    .subscribe(game=>{
+      if(game!=null){
+      this.gameStarted = true;
+      this.game = game
+      console.log(game);
+      this.currentPlayer = this.game.players[this.game.player_turn];
+      this.gameID = this.game.game_id;
+      this.getAttackerTerritories(this.currentPlayer);
+      this.messageService.add({severity:'success', summary: 'Join Successful', detail:"Enjoy the game!"});
+    }
+    else{
+      this.messageService.add({severity:'error', summary: 'Error', detail:"Game doesn't exit.."});
+    }
     });
   }
 
@@ -110,7 +145,7 @@ export class GameComponent implements OnInit {
     }
   }
   onPass(){
-    this.gameService.passTurn(this.currentPlayer.id)
+    this.gameService.passTurn(this.currentPlayer.id,{"gameID":this.gameID})
     .subscribe(game=>{
       this.game = game;
       console.log(game);
@@ -128,7 +163,8 @@ export class GameComponent implements OnInit {
       "attackeeID":this.attackeeTerritory.occupying_player,
       "attackerTerritory":this.attackingTerritory.name,
       "attackeeTerritory":this.attackeeTerritory.name,
-      "troopsNum":this.attackingTroopsNum
+      "troopsNum":this.attackingTroopsNum,
+      "gameID":this.gameID
     }
     this.gameService.attack(attack)
     .subscribe(game=>{

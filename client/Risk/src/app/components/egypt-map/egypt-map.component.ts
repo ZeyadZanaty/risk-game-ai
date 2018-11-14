@@ -18,6 +18,8 @@ export class EgyptMapComponent implements OnInit {
   attackingTerritory:string;
   attackeeTerritory:string;
   @Input() allTerritories = [];
+  currentTerritory:any;
+  colors=['green','red','blue'];
   constructor(private messageService: MessageService) { }
 
   ngOnInit() {
@@ -41,6 +43,19 @@ export class EgyptMapComponent implements OnInit {
   let current = this.allTerritories.filter(x =>x.name ==territory);
   if(current[0] && current[0].troops)
     return current[0].troops.length
+  }
+
+  onHover(event,territory,op){
+    if(this.allTerritories.length!=0){
+    this.currentTerritory = this.allTerritories.filter(x =>x.name ==territory);
+    console.log(this.currentTerritory);
+    op.toggle(event);
+  }
+  }
+  getColor(p){
+    if(this.allTerritories.length!=0){
+    return this.colors[p];
+  }
   }
 
 }

@@ -21,13 +21,14 @@ def startGame():
     game_mode = req['gameMode']
     players_num = req['playersNum']
     map = req['map']
-    session['game_id'] = uuid4()
+    session['game_id'] = str(uuid4())
     game_id = session['game_id']
     print(game_id)
     global game 
     game[game_id] = Game(map,game_mode,players_num)
     game[game_id].start()
     game_json = game[game_id].json()
+    game_json['game_id']=game_id
     response = jsonify(game_json)
     return response
 
@@ -55,9 +56,9 @@ def get_player_territories(id):
 @app.route('/attack',methods=['POST'])
 def attack():
     global game
-    game_id = session['game_id']
     print(request.get_json())
     req = request.get_json()
+    game_id = req['gameID']
     attacker_id = req['attackerID']
     attackee_id = req['attackeeID']
     attacker_territory_name =  req['attackerTerritory']
@@ -76,21 +77,31 @@ def attack():
 
 @app.route('/pass/<id>', methods=['PUT'])
 def pass_turn(id):
+    req = request.get_json()
+    game_id = req['gameID']
     global game
-    game[session['game_id']].players[int(id)].pass_turn(game[session['game_id']])
-    game_json = game[session['game_id']].json()
+    game[game_id].players[int(id)].pass_turn(game[game_id])
+    game_json = game[game_id].json()
     response = jsonify(game_json)
     return response
 
 @app.route('/reset', methods=['PUT'])
 def reset_game():
+    req = request.get_json()
+    game_id = req['gameID']
     global game
-    print(game)
-    game.pop(session['game_id'],None)
-    session.pop('game_id',None)
+    game.pop(game_id,None)
     print("Game Reset")
+    print(game)
     return jsonify({})
 
+@app.route('/join/<id>', methods=['GET'])
+def join_game(id):
+    global game
+    if id in game.keys():
+        game_json = game[id].json()
+        return jsonify(game_json)
+    else: return jsonify(None)
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -19,8 +19,8 @@ export class GameService {
   createGame(game){
     return this._http.post(this.serverUrl+'newGame',game, this.httpOptions)
   }
-  resetGame(){
-    return this._http.put(this.serverUrl+'reset',{})
+  resetGame(game){
+    return this._http.put(this.serverUrl+'reset',game)
   }
 
   getPlayer(id){
@@ -35,10 +35,13 @@ export class GameService {
     return this._http.get(this.serverUrl+'player/territories/'+id,this.httpOptions)
   }
 
-  passTurn(id){
-    return this._http.put(this.serverUrl+'pass/'+id,this.httpOptions)
+  passTurn(id,game){
+    return this._http.put(this.serverUrl+'pass/'+id,game,this.httpOptions)
   }
   attack(attack){
     return this._http.post(this.serverUrl+'attack',attack,this.httpOptions)
+  }
+  joinGame(id){
+    return this._http.get(this.serverUrl+'join/'+id,this.httpOptions)
   }
 }

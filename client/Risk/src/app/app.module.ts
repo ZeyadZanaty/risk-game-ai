@@ -7,7 +7,6 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { HttpModule } from '@angular/http';
 import { httpInterceptorProviders } from './http-interceptors/index';
 
-// import { AppRoutingModule } from './/app-routing.module';
 import { AppComponent } from './app.component';
 import { UsaMapComponent } from './components/usa-map/usa-map.component';
 import { EgyptMapComponent } from './components/egypt-map/egypt-map.component';
@@ -28,6 +27,8 @@ import {ProgressSpinnerModule} from 'primeng/progressspinner';
 import {DropdownModule} from 'primeng/dropdown';
 import {ToastModule} from 'primeng/toast';
 import {SpinnerModule} from 'primeng/spinner';
+import {OverlayPanelModule} from 'primeng/overlaypanel';
+import {TableModule} from 'primeng/table';
 
 @NgModule({
   declarations: [
@@ -38,13 +39,12 @@ import {SpinnerModule} from 'primeng/spinner';
   ],
   imports: [
     BrowserModule,
-    // AppRoutingModule,
-    BrowserAnimationsModule,
     ConfirmDialogModule,
     FormsModule,
     InputTextModule,
     ButtonModule,
     TooltipModule,
+    BrowserAnimationsModule,
     SidebarModule,
     RadioButtonModule,
     DialogModule,
@@ -61,7 +61,9 @@ import {SpinnerModule} from 'primeng/spinner';
     ProgressSpinnerModule,
     DropdownModule,
     ToastModule,
-    SpinnerModule
+    SpinnerModule,
+    OverlayPanelModule,
+    TableModule
   ],
   providers: [httpInterceptorProviders],
   bootstrap: [AppComponent]

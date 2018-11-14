@@ -17,10 +17,15 @@
             <label style="display:block; text-align:center; color:transparent;" for="startB">~</label>
             <button id="startB" (click)="startGame()" pButton type="button" label="Start" class="ui-button-success"></button>
         </div>
+        <div style="margin:10px; margin-top:15px; display:inline-grid;">
+            <label style="display:block; text-align:center; color:transparent;" for="startB">~</label>
+            <button id="joinB" (click)="displayJoin=true" tooltipPosition="top" pTooltip="Join an existing game" pButton type="button" label="Join" class="ui-button-primary"></button>
+        </div>
         <br>
     </div>
     <div *ngIf="gameStarted">
         <button id="resetB" (click)="resetGame()" pButton type="button" label="Reset" class="ui-button-success"></button>
+        <button style="margin-left:20px;" id="idB" (click)="displayID=true" pButton type="button" label="Invite" class="ui-button-primary"></button>
         <div class="stats" *ngIf="gameStarted">
           <div *ngIf="gameStarted && currentPlayer" class="card text-white bg-secondary mb-3" style="max-width: 18rem; margin-left:20px;">
             <div class="card-header">Player Stats</div>
@@ -50,6 +55,16 @@
         <app-egypt-map [allTerritories]="game.territories" [adjacent_territories]="currentAdjacents" (attackingTerritoryChange)="onAttacking($event)" (attackeeTerritoryChange)="onAttackee($event)" [attackerTerritories]="attackerTerritories" [attackableTerritories]="attackableTerritories"></app-egypt-map>
     </div>
 </div>
-
-
+<p-confirmDialog></p-confirmDialog>
 <p-toast [style]="{marginTop: '-10px'}"></p-toast>
+
+<p-dialog header="Enter Game ID" [(visible)]="displayJoin">
+  <input style="margin-top:10px;" id="input" id="input" type="text" size="30" pInputText [(ngModel)]="joinID">
+  <button style="margin-top:10px; margin-left:5px;" id="input" type="button" (click)="joinGame()" pButton label="Join"></button>
+</p-dialog>
+
+<p-dialog header="Share" [(visible)]="displayID">
+  <span >Share this with your friends!</span>
+  <br>
+  <input style="margin-top:10px;" id="input" type="text" size="38" pInputText [(ngModel)]="gameID" [disabled]="disabled"/>
+</p-dialog>
