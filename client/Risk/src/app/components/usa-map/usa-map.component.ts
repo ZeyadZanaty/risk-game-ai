@@ -7,7 +7,7 @@ import { GameService } from '../../services/game.service'
   styleUrls: ['./usa-map.component.css']
 })
 export class UsaMapComponent implements OnInit {
-
+  
   constructor(private gameService:GameService) { }
 
   ngOnInit() {

@@ -38,10 +38,21 @@ export class GameService {
   passTurn(id,game){
     return this._http.put(this.serverUrl+'pass/'+id,game,this.httpOptions)
   }
+
   attack(attack){
     return this._http.post(this.serverUrl+'attack',attack,this.httpOptions)
   }
+
   joinGame(id){
     return this._http.get(this.serverUrl+'join/'+id,this.httpOptions)
   }
+
+  getNewTroopsNum(gameid){
+    return this._http.get(this.serverUrl+'troopsNum/'+gameid,this.httpOptions)
+  }
+
+  assignNewTroops(id,dict){
+    return this._http.post(this.serverUrl+'troops/assign/'+id,dict, this.httpOptions)
+  }
+
 }

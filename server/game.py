@@ -122,8 +122,10 @@ class Game:
                 troop = Troop(i,player,2)
                 troop.assign_to_territory(self.territories)
                 player.troops.append(troop)
-
     
+    def get_territory(self,name):
+        return next((x for x in self.territories if x.name==name),None)
+
 
     def json(self):
         return {

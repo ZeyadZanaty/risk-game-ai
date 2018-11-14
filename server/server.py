@@ -53,6 +53,23 @@ def get_player_territories(id):
     }
     return jsonify(risk.players[int(id)].json())
 
+@app.route('/troopsNum/<id>', methods=['GET'])
+def get_new_troops(id):
+    global game
+    res = {"troops_num":game[id].players[game[id].player_turn].get_new_troops()}
+    return jsonify(res)
+
+@app.route('/troops/assign/<id>', methods=['POST'])
+def assign_new_troops(id):
+    req = request.get_json()
+    game_id = req['gameID']
+    troop_territory = req['troops']
+    global game
+    game[game_id].players[int(id)].assign_new_troops(game[game_id],troop_territory)
+    game_json = game[game_id].json()
+    response = jsonify(game_json)
+    return response
+
 @app.route('/attack',methods=['POST'])
 def attack():
     global game

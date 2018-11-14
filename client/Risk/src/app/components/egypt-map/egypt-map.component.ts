@@ -48,7 +48,6 @@ export class EgyptMapComponent implements OnInit {
   onHover(event,territory,op){
     if(this.allTerritories.length!=0){
     this.currentTerritory = this.allTerritories.filter(x =>x.name ==territory);
-    console.log(this.currentTerritory);
     op.toggle(event);
   }
   }

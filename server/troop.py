@@ -26,7 +26,22 @@ class Troop:
                     trt.troops.append(self)
             elif trt.occupying_player == self.player: 
                 self.territory = trt
-                trt.troops.append(self)  
+                trt.troops.append(self) 
+
+    def assign(self,game,territory_name):
+        territory = game.get_territory(territory_name)
+        if territory.occupying_player is None:
+            self.player.territories.append(territory)
+            self.territory = territory  
+            territory.occupying_player = self.player
+            if territory.troops is None:
+                territory.troops = []
+                territory.troops.append(self)
+            else:
+                territory.troops.append(self)
+        elif territory.occupying_player == self.player: 
+            self.territory = territory
+            territory.troops.append(self)  
     
     def json(self):
         return {

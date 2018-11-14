@@ -21,8 +21,13 @@ export class GameComponent implements OnInit {
   gameStarted:boolean = false;
   game:any;
   gameID:string;
-  displayJoin:boolean=false;
   joinID:string;
+  displayJoin:boolean = false;
+  displayTroops:boolean = false;
+  newTroopsNum:number;
+  troopsToTerritory:number;
+  selectedTerritory:any=null;
+  assignableTerritories:any=[];
   currentPlayer:any;
   currentAdjacents:any=[];
   attackerTerritories:any=[];
@@ -64,6 +69,7 @@ export class GameComponent implements OnInit {
       this.currentPlayer = this.game.players[this.game.player_turn];
       this.gameID = this.game.game_id;
       this.getAttackerTerritories(this.currentPlayer);
+      setTimeout((this.getNewTroops()),100);
     });
   }
 
@@ -152,6 +158,7 @@ export class GameComponent implements OnInit {
       this.currentPlayer = this.game.players[this.game.player_turn];
       this.getAttackerTerritories(this.currentPlayer);
       this.messageService.add({severity:'info', summary: 'Turn Passed', detail:"You've passed your turn"});
+      setTimeout((this.getNewTroops()),100);
     });
     setTimeout(()=>this.attackeeTerritory=null,100);
     setTimeout(()=>this.attackingTerritory=null,100);
@@ -172,8 +179,10 @@ export class GameComponent implements OnInit {
       console.log(game);
       this.currentPlayer = this.game.players[this.game.player_turn];
       this.getAttackerTerritories(this.currentPlayer);
-      if(this.game.attack.status==true)
+      if(this.game.attack.status==true){
       this.messageService.add({severity:'success', summary: 'Attack successful', detail:this.game.attack.msg});
+      setTimeout((this.getNewTroops()),100);
+    }
       if(this.game.attack.status==false)
       this.messageService.add({severity:'error', summary: 'Attack failed', detail:this.game.attack.msg});
     });
@@ -182,4 +191,48 @@ export class GameComponent implements OnInit {
     setTimeout(()=>this.attackingTroopsNum=1,100);
   }
 
+  getNewTroops(){
+    this.getAssignableTerritories();
+    this.gameService.getNewTroopsNum(this.gameID)
+    .subscribe(res=>{
+      this.newTroopsNum = res['troops_num'];
+      this.displayTroops = true;
+    });
+  }
+
+  assignTroops(){
+    if(this.selectedTerritory!=null){
+    let assign = {};
+    assign[this.selectedTerritory]=this.troopsToTerritory;
+    let post = {"gameID":this.gameID,"troops":assign};
+    this.gameService.assignNewTroops(this.currentPlayer.id,post)
+    .subscribe(game=>{
+      this.newTroopsNum-=this.troopsToTerritory;
+      if(this.newTroopsNum==0){
+        this.displayTroops = false;
+      }
+      this.game = game;
+      console.log(game);
+      this.currentPlayer = this.game.players[this.game.player_turn];
+      this.getAttackerTerritories(this.currentPlayer);
+      this.messageService.add({severity:'success', summary: 'At your service', detail:this.troopsToTerritory+' assigned to '+this.selectedTerritory});
+      setTimeout(()=>{this.troopsToTerritory=0},20)
+    });
+  }
+  else{
+    this.messageService.add({severity:'error', summary: 'Error', detail:'Select a territory first!'});
+  }
+  }
+
+  getAssignableTerritories(){
+    this.assignableTerritories = [];
+    for(let t of this.game.territories){
+      if(t.occupying_player!=null&&t.occupying_player==this.currentPlayer.id){
+         this.assignableTerritories.push({label:t.name, value:t.name});
+      }
+      else if(t.occupying_player==null){
+        this.assignableTerritories.push({label:t.name, value:t.name});
+      }
+    }
+  }
 }

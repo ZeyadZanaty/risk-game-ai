@@ -31,7 +31,7 @@ class Player:
             for i in range (0,attacking_troops):
                 troop = my_territory.troops.pop()
                 other_territory.troops.append(troop)
-            self.get_reinforcemnets(game.territories)
+            # self.get_reinforcemnets(game.territories)
             game.player_turn = (game.player_turn+1) % game.players_num
             return True, "That was easy"
         else:
@@ -51,7 +51,7 @@ class Player:
             elif attacking_troops < other_troops:
                 for i in range(0,other_troops-attacking_troops):
                     other_territory.troops.pop()
-            self.get_reinforcemnets(game.territories)
+            # self.get_reinforcemnets(game.territories)
             game.player_turn = (game.player_turn+1) % game.players_num
             return True, "You win the battle, but not the war"
 
@@ -67,7 +67,20 @@ class Player:
             troop = Troop(i,self,2)
             troop.assign_to_territory(territories)
             self.troops.append(troop)
+    
+    def get_new_troops(self):
+        number_of_troops = int(len(self.territories)/3)
+        if number_of_troops <3:
+            number_of_troops = 3
+        return number_of_troops
 
+    def assign_new_troops(self,game,assigned_territories):
+        for territory,troops in assigned_territories.items():
+            for i in range(0,troops):
+                troop = Troop(i,self,3)
+                troop.assign(game,territory)
+                self.troops.append(troop)
+    
 
     def json(self):
         return {
