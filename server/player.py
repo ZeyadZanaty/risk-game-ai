@@ -83,6 +83,13 @@ class Player:
                 troop = Troop(i,self,3)
                 troop.assign(game,territory)
                 self.troops.append(troop)
+
+    def attack_passive(self,game):
+        troops_num=self.get_new_troops()
+        least_troops_trt = min(self.territories,key=lambda x: len(x.troops))
+        self.assign_new_troops(game,{least_troops_trt.name:troops_num})
+        self.pass_turn(game)
+        return True,"placed troops in "+least_troops_trt.name+" and made no attacks!"
     
 
     def json(self):

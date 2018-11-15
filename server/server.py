@@ -93,6 +93,16 @@ def attack():
     response = jsonify(game_json)
     return response
 
+@app.route('/attack/passive/<playerid>', methods=['PUT'])
+def attack_pasive(playerid):
+    gameid = request.get_json()['gameID']
+    global game
+    status,msg = game[gameid].players[int(playerid)].attack_passive(game[gameid])
+    game_json = game[gameid].json()
+    game_json['attack'] ={"status":status,"msg":msg}
+    response = jsonify(game_json)
+    return response
+
 @app.route('/pass/<id>', methods=['PUT'])
 def pass_turn(id):
     req = request.get_json()

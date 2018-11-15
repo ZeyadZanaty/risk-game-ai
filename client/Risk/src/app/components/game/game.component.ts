@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit} from '@angular/core';
 import { GameService } from '../../services/game.service'
 import {MessageService} from 'primeng/api';
 import {ConfirmationService} from 'primeng/api';
@@ -9,7 +9,7 @@ import {ConfirmationService} from 'primeng/api';
   styleUrls: ['./game.component.css'],
   providers: [MessageService,ConfirmationService]
 })
-export class GameComponent implements OnInit {
+export class GameComponent implements OnInit{
 
   map:string = 'Egypt';
   playersNum:number = 2;
@@ -38,7 +38,6 @@ export class GameComponent implements OnInit {
   attackingTroopsNum:number=1;
   selectedPlayerTypes:any=[];
   playerTypes:any=[];
-
   constructor(private gameService:GameService,private messageService: MessageService,
               private confirmationService:ConfirmationService) { }
 
@@ -61,17 +60,19 @@ export class GameComponent implements OnInit {
 
       ];
       this.playerTypes = [
-        {label:"Select",value:0},
-        {label:'Passive',value:1},
-        {label:'Aggressive',value:2},
-        {label:'Pacifist',value:3},
-        {label:'Greedy',value:4},
-        {label:'A*',value:5},
-        {label:'A*-Real-Time',value:6},
-        {label:'Minimax',value:7}
+        {label:'Select',value:null},
+        {label:'Human', value: 0},
+        {label:'Passive', value:1},
+        {label:'Aggressive', value:2},
+        {label:'Pacifist', value:3},
+        {label:'Greedy', value:4},
+        {label:'A*', value:5},
+        {label:'A*-Real-Time', value:6},
+        {label:'Minimax', value:7}
       ];
     this.game={'territories':[]}
   }
+
 
   startGame(){
     this.gameStarted = true;
@@ -180,14 +181,29 @@ export class GameComponent implements OnInit {
   }
   onPass(){
     this.gameService.passTurn(this.currentPlayer.id,{"gameID":this.gameID})
-    .subscribe(game=>{
+    .then(game=>{
       this.game = game;
       console.log(game);
       this.currentPlayer = this.game.players[this.game.player_turn];
       this.getAttackerTerritories(this.currentPlayer);
       this.messageService.add({severity:'info', summary: 'Turn Passed', detail:"You've passed your turn"});
-      setTimeout((this.getNewTroops()),100);
-    });
+    })
+    .then(async ()=>{
+      // if(this.gameMode!=0) this.attackAI(); else this.getNewTroops();
+      if(this.gameMode==1){
+        for(let i=0;i<this.playersNum;i++){
+          if(this.currentPlayer.type==0){
+          await  this.getNewTroops();
+          }
+          else if(this.currentPlayer.type!=0){
+            await this.attackAI();
+          }
+        }
+    }
+    else{
+      this.getNewTroops();
+    }
+  });
     setTimeout(()=>this.attackeeTerritory=null,100);
     setTimeout(()=>this.attackingTerritory=null,100);
   }
@@ -199,24 +215,58 @@ export class GameComponent implements OnInit {
       "attackerTerritory":this.attackingTerritory.name,
       "attackeeTerritory":this.attackeeTerritory.name,
       "troopsNum":this.attackingTroopsNum,
-      "gameID":this.gameID
+      "gameID":this.gameID,
     }
     this.gameService.attack(attack)
-    .subscribe(game=>{
+    .then(game=>{
       this.game = game;
       console.log(game);
       this.currentPlayer = this.game.players[this.game.player_turn];
       this.getAttackerTerritories(this.currentPlayer);
       if(this.game.attack.status==true){
       this.messageService.add({severity:'success', summary: 'Attack successful', detail:this.game.attack.msg});
-      setTimeout((this.getNewTroops()),100);
+      this.getNewTroops();
     }
       if(this.game.attack.status==false)
       this.messageService.add({severity:'error', summary: 'Attack failed', detail:this.game.attack.msg});
+    })
+    .then(async()=>{
+      if(this.gameMode!=0){
+        for(let i=0;i<this.playersNum;i++){
+          if(this.currentPlayer.type==0&&this.game.attack&&this.game.attack.status){
+          await  this.getNewTroops();
+          }
+          else if(this.currentPlayer.type!=0){
+            await this.attackAI();
+          }
+        }
+    }
+  // if(this.gameMode!=0) this.attackAI(); else this.getNewTroops();
+  });
+    setTimeout(()=>this.attackeeTerritory=null,50);
+    setTimeout(()=>this.attackingTerritory=null,50);
+    setTimeout(()=>this.attackingTroopsNum=1,50);
+  }
+
+  async attackAI(){
+    if(this.currentPlayer.type==1){
+      await this.attackPassive();
+    }
+  }
+
+  async attackPassive(){
+    console.log(this.currentPlayer.id);
+    await this.gameService.attackPassive(this.currentPlayer.id,{"gameID":this.gameID})
+    .then(game=>{
+      this.game = game;
+      console.log(game);
+      if(this.game.attack.status==true){
+        this.messageService.add({severity:'success', summary: "Congrats you played yourself", detail:"Passive AI "+ this.currentPlayer.id+" has "+this.game.attack.msg});
+    }
+      this.currentPlayer = this.game.players[this.game.player_turn];
+      this.getAttackerTerritories(this.currentPlayer);
+
     });
-    setTimeout(()=>this.attackeeTerritory=null,100);
-    setTimeout(()=>this.attackingTerritory=null,100);
-    setTimeout(()=>this.attackingTroopsNum=1,100);
   }
 
   getNewTroops(){
@@ -245,6 +295,8 @@ export class GameComponent implements OnInit {
       this.getAttackerTerritories(this.currentPlayer);
       this.messageService.add({severity:'success', summary: 'At your service', detail:this.troopsToTerritory+' assigned to '+this.selectedTerritory});
       setTimeout(()=>{this.troopsToTerritory=0},20)
+      setTimeout(()=>{this.selectedTerritory=null},20)
+
     });
   }
   else{
@@ -286,6 +338,5 @@ export class GameComponent implements OnInit {
   onTerritoryChange(territory){
     this.currentTerritoryHover = territory;
   }
-
 
 }

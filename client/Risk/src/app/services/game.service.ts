@@ -36,11 +36,11 @@ export class GameService {
   }
 
   passTurn(id,game){
-    return this._http.put(this.serverUrl+'pass/'+id,game,this.httpOptions)
+    return this._http.put(this.serverUrl+'pass/'+id,game,this.httpOptions).toPromise();
   }
 
   attack(attack){
-    return this._http.post(this.serverUrl+'attack',attack,this.httpOptions)
+    return this._http.post(this.serverUrl+'attack',attack,this.httpOptions).toPromise();
   }
 
   joinGame(id){
@@ -53,6 +53,9 @@ export class GameService {
 
   assignNewTroops(id,dict){
     return this._http.post(this.serverUrl+'troops/assign/'+id,dict, this.httpOptions)
+  }
+  attackPassive(playerid,game){
+    return this._http.put(this.serverUrl+'attack/passive/'+playerid,game,this.httpOptions).toPromise();
   }
 
 }

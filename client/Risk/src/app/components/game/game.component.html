@@ -33,7 +33,7 @@
             <div class="card-header">Player Stats</div>
             <div class="card-body">
               <h5 class="card-title">Player {{currentPlayer.id}}'s Turn</h5>
-              <h5 class="card-title">You're attacking with</h5>
+              <h5 *ngIf="attackingTerritory" class="card-title">You're attacking with</h5>
               <p *ngIf="attackingTerritory" class="card-text">{{attackingTerritory.name}}: {{attackingTerritory.troops.length}} troops</p>
               <h5 *ngIf="attackeeTerritory" class="card-title">Attacking <span *ngIf="attackeeTerritory.occupying_player">Player {{attackeeTerritory.occupying_player}}'s</span></h5>
               <p *ngIf="attackeeTerritory" class="card-text">{{attackeeTerritory.name}}<span *ngIf="attackeeTerritory.troops">: {{attackeeTerritory.troops.length}} troops</span></p>
@@ -68,7 +68,7 @@
     <div *ngIf="!gameStarted&&gameMode&&gameMode==2">
       Choose AI Mode
       <ng-container *ngFor="let i of range(playersNum)">
-        <p-dropdown [style]="{'margin-left':'5px'}"[options]="playerTypes" [(ngModel)]="selectedPlayerTypes[i]"></p-dropdown>
+        <p-dropdown [style]="{'margin-left':'5px'}" [options]="playerTypes" [(ngModel)]="selectedPlayerTypes[i]"></p-dropdown>
       </ng-container>
       </div>
     <div class="usa" *ngIf="map=='USA'">
@@ -79,7 +79,7 @@
     </div>
 </div>
 <p-confirmDialog></p-confirmDialog>
-<p-toast [style]="{marginTop: '-10px'}"></p-toast>
+<p-toast [baseZIndex]="10000000" [style]="{marginTop: '-10px'}"></p-toast>
 
 <p-dialog header="Enter Game ID" [(visible)]="displayJoin">
   <input style="margin-top:10px;" id="input" id="input" type="text" size="30" pInputText [(ngModel)]="joinID">
@@ -92,9 +92,9 @@
   <input style="margin-top:10px;" id="input" type="text" size="38" pInputText [(ngModel)]="gameID" [disabled]="disabled"/>
 </p-dialog>
 
-<p-dialog [contentStyle]="{'background':'rgba(255,255,255,0.4)','overflow':'visible'}" [modal]="true" [closable]="false" width="315"  header="Assign your new troops!" [(visible)]="displayTroops">
+<p-dialog *ngIf="currentPlayer" [contentStyle]="{'background':'rgba(255,255,255,0.7)','overflow':'visible'}" [modal]="true" [closable]="false" width="315"  header="Player {{currentPlayer.id}} assign your new troops!" [(visible)]="displayTroops">
   <div style="margin-left:20px;margin-top:1px;">
-  <span style="font-size:15px;font-weight:bold;margin-bottom:10px;">{{newTroopsNum}} troops left!</span>
+  <span style="text-align:center;font-size:15px;font-weight:bold;margin-bottom:10px;">{{newTroopsNum}} troops left!</span>
   <div style="margin-top:10px;">
   <p-dropdown [resetFilterOnHide]="true" [autoDisplayFirst]="false" [filter]="true" [baseZIndex]="100000" [options]="assignableTerritories" [(ngModel)]="selectedTerritory"></p-dropdown>
   <p-spinner style="margin-left:5px" [min]="1" [max]="newTroopsNum" size="8" [(ngModel)]="troopsToTerritory"></p-spinner>
