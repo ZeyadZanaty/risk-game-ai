@@ -12,7 +12,7 @@ class Troop:
     def __str__(self):
         return str(self.__class__) + ": " + str(self.__dict__)
 
-    def assign_to_territory(self,territories):
+    def assign_randomly(self,territories):
         while self.territory is None:
             trt = random.choice(territories)
             if trt.occupying_player is None:

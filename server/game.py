@@ -86,12 +86,13 @@ egypt_states = {"Alexandria":["Beheira","Matruh"],
 colors = ['red','blue','green','yellow','black','white']
 class Game:
 
-    def __init__(self,map,mode=0,players_num=2,player_turn=0,state=None):
+    def __init__(self,map,player_types,mode=0,players_num=2,player_turn=0,state=None):
         self.players_num = players_num
         self.mode = mode
         self.player_turn = player_turn
         self.state = state
         self.map = map
+        self.player_types = player_types
     
     def start(self):
         self.generate_map()
@@ -99,18 +100,19 @@ class Game:
         self.generate_troops()
 
     def generate_map(self):
-        self.territories = []
+        self.territories = {}
         if self.map == 'USA':
             for state,adjacents in usa_states.items():
-                self.territories.append(Territory(state,adjacents))
+                self.territories[state]=Territory(state,adjacents)
         elif self.map == 'Egypt':
             for state,adjacents in egypt_states.items():
-                self.territories.append(Territory(state,adjacents))
+                self.territories[state]=Territory(state,adjacents)
 
     def generate_players(self):
         self.players = []
         for i in range(0,self.players_num):
-            self.players.append(Player(i,colors[i]))
+            type = self.player_types[i]
+            self.players.append(Player(i,colors[i],type=type))
 
     def generate_troops(self):
         for i in range(0,starting_troops):
@@ -120,12 +122,11 @@ class Game:
                 if player.territories is None:
                     player.territories = []
                 troop = Troop(i,player,2)
-                troop.assign_to_territory(self.territories)
+                troop.assign_randomly(list(self.territories.values()))
                 player.troops.append(troop)
     
     def get_territory(self,name):
-        return next((x for x in self.territories if x.name==name),None)
-
+        return self.territories[name]
 
     def json(self):
         return {
@@ -135,11 +136,21 @@ class Game:
             "player_turn":self.player_turn,
             "state":self.state,
             "players":[player.json() for player in self.players],
-            "occupied_territories":[trty.json()  for trty in self.territories if trty.occupying_player],
-            "territories":[trty.json() for trty in self.territories]
+            "occupied_territories":[trty.json()  for trty in list(self.territories.values()) if trty.occupying_player],
+            "territories":[trty.json() for trty in list(self.territories.values())]
         }
 
 class GameMode(Enum):
     AI_VS_AI = 2
     HUMAN_VS_AI = 1
     HUMAN_VS_HUMAN = 0
+
+class PlayerType(Enum):
+    HUMAN = 0
+    PASSIVE = 1
+    AGRESSIVE = 2
+    PACIFIST = 3
+    GREEDY = 4
+    ASTAR = 5
+    ASTAR_REAL = 6
+    MINIMAX = 7

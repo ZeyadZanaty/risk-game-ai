@@ -30,11 +30,15 @@ export class GameComponent implements OnInit {
   assignableTerritories:any=[];
   currentPlayer:any;
   currentAdjacents:any=[];
+  currentTerritoryHover:any;
   attackerTerritories:any=[];
   attackableTerritories:any=[];
   attackingTerritory:any;
   attackeeTerritory:any;
   attackingTroopsNum:number=1;
+  selectedPlayerTypes:any=[];
+  playerTypes:any=[];
+
   constructor(private gameService:GameService,private messageService: MessageService,
               private confirmationService:ConfirmationService) { }
 
@@ -56,12 +60,34 @@ export class GameComponent implements OnInit {
           {label:'6', value:6},
 
       ];
+      this.playerTypes = [
+        {label:"Select",value:0},
+        {label:'Passive',value:1},
+        {label:'Aggressive',value:2},
+        {label:'Pacifist',value:3},
+        {label:'Greedy',value:4},
+        {label:'A*',value:5},
+        {label:'A*-Real-Time',value:6},
+        {label:'Minimax',value:7}
+      ];
     this.game={'territories':[]}
   }
 
   startGame(){
     this.gameStarted = true;
-    let newGame = {"map":this.map,"gameMode":this.gameMode,"playersNum":this.playersNum}
+    let newGame
+    if(this.gameMode==1){
+      this.selectedPlayerTypes.unshift(0);
+       newGame = {"map":this.map,"gameMode":this.gameMode,"playersNum":this.playersNum,"playerTypes":this.selectedPlayerTypes}
+    }
+    else if (this.gameMode==0){
+       newGame = {"map":this.map,"gameMode":this.gameMode,"playersNum":this.playersNum,"playerTypes":this.zeros(this.playersNum)}
+    }
+    else{
+      newGame = {"map":this.map,"gameMode":this.gameMode,"playersNum":this.playersNum,"playerTypes":this.selectedPlayerTypes}
+
+    }
+    console.log(newGame);
     this.gameService.createGame(newGame)
     .subscribe(game=>{
       this.game = game
@@ -84,6 +110,8 @@ export class GameComponent implements OnInit {
                 this.attackerTerritories =[];
                 this.attackableTerritories =[];
                 this.game.territories = [];
+                this.selectedPlayerTypes=[];
+                this.gameMode =0;
               });
             },
             reject: () => {
@@ -235,4 +263,29 @@ export class GameComponent implements OnInit {
       }
     }
   }
+   range(size) {
+    let arr =[]
+    for(let i=0;i<size;i++){
+      arr[i]=i;
+    }
+    return arr;
+  }
+
+  zeros(size){
+    let arr =[]
+    for(let i=0;i<size;i++){
+      arr[i]=0;
+    }
+    return arr;
+  }
+
+  onModeChange(){
+  this.selectedPlayerTypes = [];
+  }
+
+  onTerritoryChange(territory){
+    this.currentTerritoryHover = territory;
+  }
+
+
 }

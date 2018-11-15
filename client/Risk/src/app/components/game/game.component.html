@@ -11,7 +11,7 @@
         </div>
         <div style="margin:10px; display:inline-grid;">
             <label style="display:block; text-align:center;" for="modeDD">Game Mode</label>
-            <p-dropdown id="modeDD" [options]="gameModes" [(ngModel)]="gameMode"></p-dropdown>
+            <p-dropdown (onChange)="onModeChange()" id="modeDD" [options]="gameModes" [(ngModel)]="gameMode"></p-dropdown>
         </div>
         <div style="margin:10px; margin-top:15px; display:inline-grid;">
             <label style="display:block; text-align:center; color:transparent;" for="startB">~</label>
@@ -24,8 +24,10 @@
         <br>
     </div>
     <div *ngIf="gameStarted">
+      <div>
         <button id="resetB" (click)="resetGame()" pButton type="button" label="Reset" class="ui-button-success"></button>
         <button style="margin-left:20px;" id="idB" (click)="displayID=true" pButton type="button" label="Invite" class="ui-button-primary"></button>
+      </div>
         <div class="stats" *ngIf="gameStarted">
           <div *ngIf="gameStarted && currentPlayer" class="card text-white bg-secondary mb-3" style="max-width: 18rem; margin-left:20px;">
             <div class="card-header">Player Stats</div>
@@ -47,12 +49,33 @@
           <button  (click)="onPass()"  type="button" class="btn btn-success">Pass</button>
         </div>
         </div>
+        <div class="stats-2" *ngIf="gameStarted&&currentTerritoryHover">
+          <div *ngIf="gameStarted && currentPlayer" class="card text-white bg-dark mb-3" style="max-width: 18rem; margin-left:20px;">
+            <div class="card-header">{{currentTerritoryHover.name}}</div>
+            <div class="card-body">
+              <h5 *ngIf="currentTerritoryHover.occupying_player!=null" class="card-title">Occupied by Player {{currentTerritoryHover.occupying_player}}</h5>
+              <p *ngIf="currentTerritoryHover.troops" class="card-text">{{currentTerritoryHover.troops.length}} Troops</p>
+              </div>
+          </div>
+        </div>
     </div>
+  <div *ngIf="!gameStarted&&gameMode&&gameMode==1">
+    Choose AI Mode
+    <ng-container *ngFor="let i of range(playersNum-1)">
+      <p-dropdown [style]="{'margin-left':'5px'}"[options]="playerTypes" [(ngModel)]="selectedPlayerTypes[i]"></p-dropdown>
+    </ng-container>
+    </div>
+    <div *ngIf="!gameStarted&&gameMode&&gameMode==2">
+      Choose AI Mode
+      <ng-container *ngFor="let i of range(playersNum)">
+        <p-dropdown [style]="{'margin-left':'5px'}"[options]="playerTypes" [(ngModel)]="selectedPlayerTypes[i]"></p-dropdown>
+      </ng-container>
+      </div>
     <div class="usa" *ngIf="map=='USA'">
         <app-usa-map></app-usa-map>
     </div>
     <div class="egypt" *ngIf="map=='Egypt'">
-        <app-egypt-map [allTerritories]="game.territories" [adjacent_territories]="currentAdjacents" (attackingTerritoryChange)="onAttacking($event)" (attackeeTerritoryChange)="onAttackee($event)" [attackerTerritories]="attackerTerritories" [attackableTerritories]="attackableTerritories"></app-egypt-map>
+        <app-egypt-map [allTerritories]="game.territories" [adjacent_territories]="currentAdjacents" (attackingTerritoryChange)="onAttacking($event)" (attackeeTerritoryChange)="onAttackee($event)" (currentTerritoryChange)="onTerritoryChange($event)" [attackerTerritories]="attackerTerritories" [attackableTerritories]="attackableTerritories"></app-egypt-map>
     </div>
 </div>
 <p-confirmDialog></p-confirmDialog>

@@ -21,11 +21,12 @@ def startGame():
     game_mode = req['gameMode']
     players_num = req['playersNum']
     map = req['map']
+    types = req['playerTypes']
     session['game_id'] = str(uuid4())
     game_id = session['game_id']
     print(game_id)
     global game 
-    game[game_id] = Game(map,game_mode,players_num)
+    game[game_id] = Game(map=map,mode=game_mode,player_types=types,players_num=players_num)
     game[game_id].start()
     game_json = game[game_id].json()
     game_json['game_id']=game_id
@@ -83,8 +84,8 @@ def attack():
     troops_num = req['troopsNum']
     if attackee_id is None:
         attackee_id = 0
-    attacker_territory = next((x for x in game[game_id].territories if x.name == attacker_territory_name),None)
-    attackee_territory = next((x for x in game[game_id].territories if x.name == attackee_territory_name),None)
+    attacker_territory = game[game_id].get_territory(attacker_territory_name)
+    attackee_territory = game[game_id].get_territory(attackee_territory_name)
     status,msg = game[game_id].players[int(attacker_id)].attack(game[game_id],
     troops_num,attacker_territory,game[game_id].players[int(attackee_id)],attackee_territory)
     game_json = game[game_id].json()

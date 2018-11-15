@@ -4,11 +4,12 @@ starting_troops = 20
 
 class Player:
 
-    def __init__(self,id,color,troops=None,score=0,territories=None):
+    def __init__(self,id,color,troops=None,score=0,territories=None,type=0):
         self.troops = troops
         self.score = score
         self.id = id
         self.color = color
+        self.type = type
         self.territories = territories
 
     def __str__(self):
@@ -16,6 +17,8 @@ class Player:
 
 
     def attack(self,game,attacking_troops,my_territory,other_player,other_territory):
+        #TODO 
+        # check type on attack and do move as given
         if my_territory not in self.territories:
             return False, "Selected territory is not yours"
         elif other_territory.name not in my_territory.adjacent_territories:
@@ -56,8 +59,8 @@ class Player:
             return True, "You win the battle, but not the war"
 
     def pass_turn(self,game):
-        game.player_turn = (game.player_turn+1 )%game.players_num
-        self.get_reinforcemnets(game.territories)
+        game.player_turn = (game.player_turn+1) % game.players_num
+        # self.get_reinforcemnets(game.territories)
 
     def get_reinforcemnets(self,territories):
         number_of_troops = int(len(self.territories)/3)
@@ -65,7 +68,7 @@ class Player:
             number_of_troops = 3
         for i in range(0,number_of_troops):
             troop = Troop(i,self,2)
-            troop.assign_to_territory(territories)
+            troop.assign_randomly(territories)
             self.troops.append(troop)
     
     def get_new_troops(self):
@@ -88,7 +91,8 @@ class Player:
             "color":self.color,
             "troops":[troop.json() for troop in self.troops],
             "territories":[trty.json() for trty in self.territories],
-            "score":self.score
+            "score":self.score,
+            "type":self.type
             }
 
     def print(self):
