@@ -94,7 +94,7 @@ def attack():
     return response
 
 @app.route('/attack/passive/<playerid>', methods=['PUT'])
-def attack_pasive(playerid):
+def attack_passive(playerid):
     gameid = request.get_json()['gameID']
     global game
     status,msg = game[gameid].players[int(playerid)].attack_passive(game[gameid])
@@ -102,6 +102,26 @@ def attack_pasive(playerid):
     game_json['attack'] ={"status":status,"msg":msg}
     response = jsonify(game_json)
     return response
+
+@app.route('/attack/aggressive/<playerid>', methods=['PUT'])
+def attack_aggressive(playerid):
+    gameid = request.get_json()['gameID']
+    global game
+    status,msg,ai_msg = game[gameid].players[int(playerid)].attack_aggressive(game[gameid])
+    game_json = game[gameid].json()
+    game_json['attack'] ={"status":status,"msg":msg,"ai_msg":ai_msg}
+    response = jsonify(game_json)
+    return response
+
+@app.route('/attack/pacifist/<playerid>', methods=['PUT'])
+def attack_pacifist(playerid):
+    gameid = request.get_json()['gameID']
+    global game
+    status,msg,ai_msg = game[gameid].players[int(playerid)].attack_pacifist(game[gameid])
+    game_json = game[gameid].json()
+    game_json['attack'] ={"status":status,"msg":msg,"ai_msg":ai_msg}
+    response = jsonify(game_json)
+    return response    
 
 @app.route('/pass/<id>', methods=['PUT'])
 def pass_turn(id):

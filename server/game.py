@@ -98,6 +98,7 @@ class Game:
         self.generate_map()
         self.generate_players()
         self.generate_troops()
+        self.update_state()
 
     def generate_map(self):
         self.territories = {}
@@ -113,6 +114,7 @@ class Game:
         for i in range(0,self.players_num):
             type = self.player_types[i]
             self.players.append(Player(i,colors[i],type=type))
+            self.players[i].set_goal_state(self)
 
     def generate_troops(self):
         for i in range(0,starting_troops):
@@ -127,6 +129,12 @@ class Game:
     
     def get_territory(self,name):
         return self.territories[name]
+    
+    def update_state(self):
+        if self.state is None:
+            self.state ={}
+        self.state = {trt.name:trt.occupying_player.id for trt in list(self.territories.values()) if trt.occupying_player}
+
 
     def json(self):
         return {

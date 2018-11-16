@@ -20,6 +20,7 @@ export class EgyptMapComponent implements OnInit {
   attackeeTerritory:string;
   @Input() allTerritories = [];
   currentTerritory:any;
+  colors=['red','blue','green'];
   constructor(private messageService: MessageService) { }
 
   ngOnInit() {
@@ -56,6 +57,16 @@ export class EgyptMapComponent implements OnInit {
     if(this.allTerritories.length!=0){
     this.currentTerritory = null;
     this.currentTerritoryChange.emit(null);
+    }
+  }
+
+  getStroke(territory){
+    if(this.allTerritories.length!=0){
+    let trt = this.allTerritories.filter(x =>x.name ==territory)[0];
+    if(trt.occupying_player!=null){
+      return this.colors[trt.occupying_player];
+    }
+    else return 'white';
     }
   }
 

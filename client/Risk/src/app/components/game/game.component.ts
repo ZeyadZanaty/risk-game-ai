@@ -88,7 +88,6 @@ export class GameComponent implements OnInit{
       newGame = {"map":this.map,"gameMode":this.gameMode,"playersNum":this.playersNum,"playerTypes":this.selectedPlayerTypes}
 
     }
-    console.log(newGame);
     this.gameService.createGame(newGame)
     .subscribe(game=>{
       this.game = game
@@ -252,6 +251,12 @@ export class GameComponent implements OnInit{
     if(this.currentPlayer.type==1){
       await this.attackPassive();
     }
+    else if(this.currentPlayer.type==2){
+      await this.attackAggressive();
+    }
+    else if(this.currentPlayer.type==3){
+      await this.attackPacifist();
+    }
   }
 
   async attackPassive(){
@@ -262,6 +267,44 @@ export class GameComponent implements OnInit{
       console.log(game);
       if(this.game.attack.status==true){
         this.messageService.add({severity:'success', summary: "Congrats you played yourself", detail:"Passive AI "+ this.currentPlayer.id+" has "+this.game.attack.msg});
+    }
+      this.currentPlayer = this.game.players[this.game.player_turn];
+      this.getAttackerTerritories(this.currentPlayer);
+
+    });
+  }
+
+  async attackAggressive(){
+    console.log(this.currentPlayer.id);
+    await this.gameService.attackAggressive(this.currentPlayer.id,{"gameID":this.gameID})
+    .then(game=>{
+      this.game = game;
+      console.log(game);
+      if(this.game.attack.status==true){
+        this.messageService.add({severity:'success', summary: "Congrats you played yourself", detail:"Agressive AI "+ this.currentPlayer.id+" has "+this.game.attack.ai_msg});
+    }
+    if(this.game.attack.status==false){
+      this.messageService.add({severity:'error', summary: "AI failed", detail:"Agressive AI "+ this.currentPlayer.id+" has made his attack and failed \n"+this.game.attack.msg});
+
+    }
+      this.currentPlayer = this.game.players[this.game.player_turn];
+      this.getAttackerTerritories(this.currentPlayer);
+
+    });
+  }
+
+  async attackPacifist(){
+    console.log(this.currentPlayer.id);
+    await this.gameService.attackPacifist(this.currentPlayer.id,{"gameID":this.gameID})
+    .then(game=>{
+      this.game = game;
+      console.log(game);
+      if(this.game.attack.status==true){
+        this.messageService.add({severity:'success', summary: "Congrats you played yourself", detail:"Pacifist AI "+ this.currentPlayer.id+" has "+this.game.attack.ai_msg});
+    }
+    if(this.game.attack.status==false){
+      this.messageService.add({severity:'error', summary: "AI failed", detail:"Pacifist AI "+ this.currentPlayer.id+" has made his attack and failed \n"+this.game.attack.msg});
+
     }
       this.currentPlayer = this.game.players[this.game.player_turn];
       this.getAttackerTerritories(this.currentPlayer);
@@ -337,6 +380,10 @@ export class GameComponent implements OnInit{
 
   onTerritoryChange(territory){
     this.currentTerritoryHover = territory;
+  }
+
+  getColor(territory){
+    return territory.occupying_player!=null? this.game.players[territory.occupying_player].color:''
   }
 
 }

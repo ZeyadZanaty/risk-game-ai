@@ -58,4 +58,12 @@ export class GameService {
     return this._http.put(this.serverUrl+'attack/passive/'+playerid,game,this.httpOptions).toPromise();
   }
 
+  attackAggressive(playerid,game){
+    return this._http.put(this.serverUrl+'attack/aggressive/'+playerid,game,this.httpOptions).toPromise();
+  }
+
+  attackPacifist(playerid,game){
+    return this._http.put(this.serverUrl+'attack/pacifist/'+playerid,game,this.httpOptions).toPromise();
+  }
+
 }

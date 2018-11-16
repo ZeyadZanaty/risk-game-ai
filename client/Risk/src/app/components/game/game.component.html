@@ -51,8 +51,8 @@
         </div>
         <div class="stats-2" *ngIf="gameStarted&&currentTerritoryHover">
           <div *ngIf="gameStarted && currentPlayer" class="card text-white bg-dark mb-3" style="max-width: 18rem; margin-left:20px;">
-            <div class="card-header">{{currentTerritoryHover.name}}</div>
-            <div class="card-body">
+            <div class="card-header" [ngStyle]="{'background':getColor(currentTerritoryHover)}">{{currentTerritoryHover.name}}</div>
+            <div class="card-body"  [ngStyle]="{'background':getColor(currentTerritoryHover)}">
               <h5 *ngIf="currentTerritoryHover.occupying_player!=null" class="card-title">Occupied by Player {{currentTerritoryHover.occupying_player}}</h5>
               <p *ngIf="currentTerritoryHover.troops" class="card-text">{{currentTerritoryHover.troops.length}} Troops</p>
               </div>
