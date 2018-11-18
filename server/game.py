@@ -66,7 +66,7 @@ egypt_states = {"Alexandria":["Beheira","Matruh"],
     "Damietta":["Dakahlia","Port Said"],
     "Faiyum":["Giza","Beni Suef"],
     "Gharbia":["Dakahlia","Kafr El Sheikh","Beheira","Monufia"],
-    "Giza":["Faiyum","Suez","Beheira","Monufia","Qalyubia","Cairo","Matruh","New Valley"],
+    "Giza":["Faiyum","Suez","Beheira","Monufia","Qalyubia","Cairo","Matruh","New Valley","Red Sea"],
     "Ismailia":["North Sinai","Suez","Cairo","Sharqia","Port Said"],
     "Kafr El Sheikh":["Dakahlia","Beheira","Gharbia"],
     "Luxor":["Aswan","New Valley","Qena","Red Sea"],
@@ -83,7 +83,7 @@ egypt_states = {"Alexandria":["Beheira","Matruh"],
     "Sohag":["Asyut","Qena","Red Sea","New Valley"],
     "South Sinai":["Suez","North Sinai"],
     "Suez":["Giza","Cairo","North Sinai","South Sinai","Sharqia","Ismailia"]}
-colors = ['red','blue','green','yellow','black','white']
+colors = ['#346ac3','#d23c2f','#e1a904','#191919','#326f26','#764dbe']
 class Game:
 
     def __init__(self,map,player_types,mode=0,players_num=2,player_turn=0,state=None):

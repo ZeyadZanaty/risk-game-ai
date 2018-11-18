@@ -35,7 +35,7 @@
               <h5 class="card-title">Player {{currentPlayer.id}}'s Turn</h5>
               <h5 *ngIf="attackingTerritory" class="card-title">You're attacking with</h5>
               <p *ngIf="attackingTerritory" class="card-text">{{attackingTerritory.name}}: {{attackingTerritory.troops.length}} troops</p>
-              <h5 *ngIf="attackeeTerritory" class="card-title">Attacking <span *ngIf="attackeeTerritory.occupying_player">Player {{attackeeTerritory.occupying_player}}'s</span></h5>
+              <h5 *ngIf="attackeeTerritory" class="card-title">Attacking <span *ngIf="attackeeTerritory.occupying_player!=null">Player {{attackeeTerritory.occupying_player}}'s</span></h5>
               <p *ngIf="attackeeTerritory" class="card-text">{{attackeeTerritory.name}}<span *ngIf="attackeeTerritory.troops">: {{attackeeTerritory.troops.length}} troops</span></p>
             </div>
           </div>
