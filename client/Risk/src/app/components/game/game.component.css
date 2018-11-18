@@ -13,6 +13,8 @@
 .stats{
   width: 280px;
   position: fixed;
+  margin-top: -60px;
+
 }
 .game-stats{
   width:300px;
@@ -24,4 +26,8 @@
   width: 280px;
   float: right;
   margin-right: 20px;
+  margin-left: -100px;
+  margin-bottom: -100px;
+  position:static;
+  margin-top: -60px;
 }

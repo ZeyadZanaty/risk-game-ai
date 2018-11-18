@@ -1,12 +1,44 @@
-path{
-  fill:grey;
-}
-path:hover{
-  fill:yellow;
-}
 svg{
   transform-origin: 0 0;
-  margin-left: -100px;
-  width: 1500px;
   height: 680px;
+  margin-left: -270px;
+  position: relative;
+  margin-top: 50px;
+}
+path{
+  fill:#969696;
+  stroke:white;
+}
+path:hover{
+  fill:#bfbfbf;
+  cursor: pointer;
+}
+.attacker{
+  fill:#4ca64c;
+}
+.attacker:hover{
+  fill:#66b266;
+}
+.attackable{
+  fill:#b20000;
+}
+.attackable:hover{
+  fill:#cc0000;
+}
+line{
+  stroke:black;
+  stroke-width:0.8;
+}
+text{
+  font-size:15px;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  text-shadow: rgb(255, 255, 255) -2px -2px 0px, rgb(255, 255, 255) -2px 2px 0px,
+     rgb(255, 255, 255) 2px -2px 0px, rgb(255, 255, 255) 2px 2px 0px;
+}
+circle{
+  stroke:rgba(255,255,255,0.7);
+  fill:transparent;
+  opacity: 0.8;
+  -webkit-filter: drop-shadow( -5px -5px 5px #000 );
+            filter: drop-shadow( -5px -5px 5px #000 );
 }

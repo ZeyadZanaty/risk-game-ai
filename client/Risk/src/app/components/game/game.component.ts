@@ -11,7 +11,7 @@ import {ConfirmationService} from 'primeng/api';
 })
 export class GameComponent implements OnInit{
 
-  map:string = 'Egypt';
+  map:string = 'USA';
   playersNum:number = 2;
   gameMode:number = 0;
   territories:any[];
@@ -112,6 +112,8 @@ export class GameComponent implements OnInit{
                 this.game.territories = [];
                 this.selectedPlayerTypes=[];
                 this.gameMode =0;
+                this.attackingTerritory=null
+                this.attackeeTerritory=null;
               });
             },
             reject: () => {

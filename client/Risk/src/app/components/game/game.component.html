@@ -72,7 +72,7 @@
       </ng-container>
       </div>
     <div class="usa" *ngIf="map=='USA'">
-        <app-usa-map></app-usa-map>
+        <app-usa-map [allTerritories]="game.territories" [adjacent_territories]="currentAdjacents" (attackingTerritoryChange)="onAttacking($event)" (attackeeTerritoryChange)="onAttackee($event)" (currentTerritoryChange)="onTerritoryChange($event)" [attackerTerritories]="attackerTerritories" [attackableTerritories]="attackableTerritories"></app-usa-map>
     </div>
     <div class="egypt" *ngIf="map=='Egypt'">
         <app-egypt-map [allTerritories]="game.territories" [adjacent_territories]="currentAdjacents" (attackingTerritoryChange)="onAttacking($event)" (attackeeTerritoryChange)="onAttackee($event)" (currentTerritoryChange)="onTerritoryChange($event)" [attackerTerritories]="attackerTerritories" [attackableTerritories]="attackableTerritories"></app-egypt-map>
@@ -92,12 +92,12 @@
   <input style="margin-top:10px;" id="input" type="text" size="38" pInputText [(ngModel)]="gameID" [disabled]="disabled"/>
 </p-dialog>
 
-<p-dialog *ngIf="currentPlayer" [contentStyle]="{'background':'rgba(255,255,255,0.7)','overflow':'visible'}" [modal]="true" [closable]="false" width="315"  header="Player {{currentPlayer.id}} assign your new troops!" [(visible)]="displayTroops">
+<p-dialog *ngIf="currentPlayer" [contentStyle]="{'background':'rgba(255,255,255,0.7)','overflow':'visible'}" [modal]="true" [closable]="false" width="325"  header="Player {{currentPlayer.id}} assign your new troops!" [(visible)]="displayTroops">
   <div style="margin-left:20px;margin-top:1px;">
   <span style="text-align:center;font-size:15px;font-weight:bold;margin-bottom:10px;">{{newTroopsNum}} troops left!</span>
   <div style="margin-top:10px;">
   <p-dropdown [resetFilterOnHide]="true" [autoDisplayFirst]="false" [filter]="true" [baseZIndex]="100000" [options]="assignableTerritories" [(ngModel)]="selectedTerritory"></p-dropdown>
-  <p-spinner style="margin-left:5px" [min]="1" [max]="newTroopsNum" size="8" [(ngModel)]="troopsToTerritory"></p-spinner>
+  <p-spinner [style]="{'margin-left':'5px'}" [min]="1" [max]="newTroopsNum" size="8" [(ngModel)]="troopsToTerritory"></p-spinner>
   </div>
   <br>
   <button style="margin-left:30%" type="button" (click)="assignTroops()" pButton label="Assign"></button>
