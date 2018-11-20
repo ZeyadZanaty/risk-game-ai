@@ -41,12 +41,14 @@
           </div>
           <div *ngIf="attackeeTerritory&&attackingTerritory" style="margin-bottom:20px;">
             Attack with
-          <p-spinner  id="spin" size="5" [(ngModel)]="attackingTroopsNum" [min]="1" [max]="attackingTerritory.troops.length"></p-spinner>
+          <p-spinner  id="spin" size="5" [(ngModel)]="attackingTroopsNum" [min]="1" [max]="attackingTerritory.troops.length-1"></p-spinner>
             troops
         </div>
         <div>
           <button *ngIf="attackeeTerritory&&attackingTerritory" style="margin-right:10px;" (click)="onAttack()"  type="button"  class="btn btn-danger">Attack!</button>
-          <button  (click)="onPass()"  type="button" class="btn btn-success">Pass</button>
+          <button *ngIf="currentPlayer&&currentPlayer.type==0" (click)="onPass()"  type="button" class="btn btn-success">End Turn</button>
+          <button *ngIf="currentPlayer&&currentPlayer.type!=0" (click)="onPass()"  type="button" class="btn btn-success">Next Turn</button>
+
         </div>
         </div>
         <div class="stats-2" *ngIf="gameStarted&&currentTerritoryHover">

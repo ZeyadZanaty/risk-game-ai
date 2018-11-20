@@ -107,9 +107,10 @@ def attack_passive(playerid):
 def attack_aggressive(playerid):
     gameid = request.get_json()['gameID']
     global game
-    status,msg,ai_msg = game[gameid].players[int(playerid)].attack_aggressive(game[gameid])
+    attacks,place_msg = game[gameid].players[int(playerid)].attack_aggressive(game[gameid])
     game_json = game[gameid].json()
-    game_json['attack'] ={"status":status,"msg":msg,"ai_msg":ai_msg}
+    game_json['attacks'] =[{"status":attack[0],"msg":attack[1],"ai_msg":attack[2]} for attack in attacks]
+    game_json['troops_msg']=place_msg
     response = jsonify(game_json)
     return response
 

@@ -20,7 +20,7 @@ usa_states = {"Alabama":["Mississippi","Tennessee","Florida","Georgia"],
   "Idaho":["Wyoming","Montana","Washington","Utah","Nevada","Oregon"],
   "Illinois":["Wisconsin","Iowa","Missouri","Indiana","Kentucky"],
   "Indiana":["Illinois","Michigan","Ohio","Kentucky"],
-  "Iowa":["Wisconsin","Minnesota","Nebraska","South Dakota","Missouri"],
+  "Iowa":["Wisconsin","Minnesota","Nebraska","South Dakota","Missouri","Illinois"],
   "Kansas":["Nebraska","Oklahoma","Colorado","Missouri"],
   "Kentucky":["Indiana","Illinois","Virginia","Ohio","West Virginia","Tennessee","Missouri"],
   "Louisiana":["Arkansas","Texas","Mississippi"],
@@ -117,7 +117,7 @@ class Game:
             self.players[i].set_goal_state(self)
 
     def generate_troops(self):
-        for i in range(0,starting_troops):
+        for i in range(0,self.players_num*10):
             for player in self.players:
                 if player.troops is None:
                     player.troops=[]
@@ -134,6 +134,11 @@ class Game:
         if self.state is None:
             self.state ={}
         self.state = {trt.name:trt.occupying_player.id for trt in list(self.territories.values()) if trt.occupying_player}
+        for i,player in enumerate(self.players):
+            if player and len(player.territories)==0:
+                self.players[i] = None
+            if self.players[self.player_turn] is None:
+                self.player_turn = (self.player_turn+1) % self.players_num
 
 
     def json(self):
@@ -143,7 +148,7 @@ class Game:
             "players_num":self.players_num,
             "player_turn":self.player_turn,
             "state":self.state,
-            "players":[player.json() for player in self.players],
+            "players":[player.json() if player else None for player in self.players ],
             "occupied_territories":[trty.json()  for trty in list(self.territories.values()) if trty.occupying_player],
             "territories":[trty.json() for trty in list(self.territories.values())]
         }

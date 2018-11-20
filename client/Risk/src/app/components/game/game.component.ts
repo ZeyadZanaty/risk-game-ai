@@ -141,6 +141,8 @@ export class GameComponent implements OnInit{
   }
 
   getAttackerTerritories(player){
+    if(!player)
+    return
     this.attackerTerritories =[]
     for(let tr of player.territories){
       this.attackerTerritories.push(tr.name);
@@ -186,22 +188,23 @@ export class GameComponent implements OnInit{
       this.game = game;
       console.log(game);
       this.currentPlayer = this.game.players[this.game.player_turn];
+      if(this.currentPlayer)
       this.getAttackerTerritories(this.currentPlayer);
-      this.messageService.add({severity:'info', summary: 'Turn Passed', detail:"You've passed your turn"});
+      this.messageService.add({severity:'info', summary: 'Turn Ended', detail:"You've ended your turn"});
     })
     .then(async ()=>{
-      // if(this.gameMode!=0) this.attackAI(); else this.getNewTroops();
       if(this.gameMode==1){
         for(let i=0;i<this.playersNum;i++){
-          if(this.currentPlayer.type==0){
+          if(this.currentPlayer&&this.currentPlayer.type==0){
           await  this.getNewTroops();
           }
-          else if(this.currentPlayer.type!=0){
+          else if(this.currentPlayer&&this.currentPlayer.type!=0){
             await this.attackAI();
           }
         }
     }
     else{
+      if(this.currentPlayer)
       this.getNewTroops();
     }
   });
@@ -226,24 +229,10 @@ export class GameComponent implements OnInit{
       this.getAttackerTerritories(this.currentPlayer);
       if(this.game.attack.status==true){
       this.messageService.add({severity:'success', summary: 'Attack successful', detail:this.game.attack.msg});
-      this.getNewTroops();
     }
       if(this.game.attack.status==false)
       this.messageService.add({severity:'error', summary: 'Attack failed', detail:this.game.attack.msg});
-    })
-    .then(async()=>{
-      if(this.gameMode!=0){
-        for(let i=0;i<this.playersNum;i++){
-          if(this.currentPlayer.type==0&&this.game.attack&&this.game.attack.status){
-          await  this.getNewTroops();
-          }
-          else if(this.currentPlayer.type!=0){
-            await this.attackAI();
-          }
-        }
-    }
-  // if(this.gameMode!=0) this.attackAI(); else this.getNewTroops();
-  });
+    });
     setTimeout(()=>this.attackeeTerritory=null,50);
     setTimeout(()=>this.attackingTerritory=null,50);
     setTimeout(()=>this.attackingTroopsNum=1,50);
@@ -279,15 +268,23 @@ export class GameComponent implements OnInit{
   async attackAggressive(){
     console.log(this.currentPlayer.id);
     await this.gameService.attackAggressive(this.currentPlayer.id,{"gameID":this.gameID})
-    .then(game=>{
+    .then(async game=>{
       this.game = game;
       console.log(game);
-      if(this.game.attack.status==true){
-        this.messageService.add({severity:'success', summary: "Congrats you played yourself", detail:"Agressive AI "+ this.currentPlayer.id+" has "+this.game.attack.ai_msg});
-    }
-    if(this.game.attack.status==false){
-      this.messageService.add({severity:'error', summary: "AI failed", detail:"Agressive AI "+ this.currentPlayer.id+" has made his attack and failed \n"+this.game.attack.msg});
-
+      this.messageService.add({severity:'success', summary: "AI Bonus Troops", detail:"Agressive AI "+ this.currentPlayer.id+" has "+this.game.troops_msg});
+      if(this.game.attacks.length==0){
+        await this.messageService.add({severity:'error', summary: "AI failed", detail:"Agressive AI "+ this.currentPlayer.id+" couldn't make an attack"});
+      }
+    for(let attack of this.game.attacks){
+      if(attack.length==0){
+        await this.messageService.add({severity:'error', summary: "AI failed", detail:"Agressive AI "+ this.currentPlayer.id+" couldn't make an attack"});
+      }
+      if(attack.status==true){
+        await this.messageService.add({severity:'success', summary: "Congrats you played yourself", detail:"Agressive AI "+ this.currentPlayer.id+" has "+attack.ai_msg});
+      }
+      if(attack.status==false){
+        await this.messageService.add({severity:'error', summary: "AI failed", detail:"Agressive AI "+ this.currentPlayer.id+" has made his attack and failed \n"+attack.msg});
+      }
     }
       this.currentPlayer = this.game.players[this.game.player_turn];
       this.getAttackerTerritories(this.currentPlayer);

@@ -59,15 +59,16 @@ export class EgyptMapComponent implements OnInit {
     this.currentTerritoryChange.emit(null);
     }
   }
-
-  getStroke(territory){
+  
+  getColor(territory){
     if(this.allTerritories.length!=0){
     let trt = this.allTerritories.filter(x =>x.name ==territory)[0];
-    if(trt.occupying_player!=null){
+    if(trt&&trt.occupying_player!=null){
       return this.colors[trt.occupying_player];
     }
-    else return 'white';
+    else return 'transparent';
     }
+    else return 'transparent';
   }
 
 }

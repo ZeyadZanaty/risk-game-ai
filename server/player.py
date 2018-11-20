@@ -19,9 +19,6 @@ class Player:
         self.goal_state = [self.id for trt in list(game.territories.items())]
 
     def attack(self,game,attacking_troops,my_territory,other_player,other_territory):
-        #TODO 
-        # check type on attack and do move as given
-        # fix troops bug
         if my_territory not in self.territories:
             return False, "Selected territory is not yours"
         elif other_territory.name not in my_territory.adjacent_territories:
@@ -40,8 +37,6 @@ class Player:
                 new_troop = Troop(i,self,4)
                 new_troop.assign(game,other_territory.name)
                 self.troops.append(new_troop)
-            # self.get_reinforcemnets(game.territories)
-            game.player_turn = (game.player_turn+1) % game.players_num
             game.update_state()
             return True, "That was easy"
         else:
@@ -63,15 +58,12 @@ class Player:
                 for i in range(0,other_troops-attacking_troops):
                     troop = other_territory.troops.pop()
                     other_player.troops.remove(troop)
-            # self.get_reinforcemnets(game.territories)
             game.update_state()
-            game.player_turn = (game.player_turn+1) % game.players_num
             return True, "You win the battle, but not the war"
 
     def pass_turn(self,game):
         game.player_turn = (game.player_turn+1) % game.players_num
         game.update_state()
-        # self.get_reinforcemnets(game.territories)
 
     def get_reinforcemnets(self,territories):
         number_of_troops = int(len(self.territories)/3)
@@ -105,6 +97,22 @@ class Player:
         if attackable_territories:
             return attackable_territories
         else: return []
+    
+    def get_attackable(self,game):
+        attackable ={}
+        for trt in self.territories:
+            if len(trt.troops)>1:
+                trts = []
+                for adjacent in trt.adjacent_territories:
+                    adj = game.get_territory(adjacent)
+                    if adj not in trts and adj not in self.territories:
+                        trts.append(adj)
+                attackable[trt] = trts
+    
+    def can_attack(self,my_territory,other_territory):
+        if len(my_territory.troops)<=1 or other_territory in self.territories:
+            return False
+        return True
 
     def attack_passive(self,game):
         troops_num=self.get_new_troops()
@@ -117,25 +125,21 @@ class Player:
         troops_num=self.get_new_troops()
         max_troops_trt = max(self.territories,key=lambda x: len(x.troops) if x.troops else 0)
         self.assign_new_troops(game,{max_troops_trt.name:troops_num})
-        attacking_troops = len(max_troops_trt.troops)-1
-        other_territory, my_territory = self.get_aggressive_territory(game,max_troops_trt)
-        if other_territory.occupying_player:
-            other_player = game.players[other_territory.occupying_player.id]
-        else:
-            other_player = game.players[0]
-        attack,msg = self.attack(game,attacking_troops,my_territory,other_player,other_territory)
-        if attack:
-            return attack,msg,"placed troops in "+max_troops_trt.name+" and attacked "+other_territory.name
-        else:
-            self.pass_turn(game)
-            return attack,msg,''
+        attacks = self.get_aggressive_attacks(game)
+        self.pass_turn(game)
+        return attacks,"placed troops in "+max_troops_trt.name
 
-    def get_aggressive_territory(self,game,attacking_trt):
-        attackable  = []
-        for adjacent in attacking_trt.adjacent_territories:
-            trt = game.get_territory(adjacent)
-            attackable.append(trt)
-        return max(attackable,key=lambda x:len(x.troops) if x.troops else 0),attacking_trt
+    def get_aggressive_attacks(self,game):
+        attacks = []
+        for trt in self.territories:
+            for adj in trt.adjacent_territories:
+                other_trt = game.get_territory(adj)
+                if self.can_attack(trt,other_trt):
+                    troops = len(trt.troops)-1
+                    attack = list(self.attack(game,troops,trt,other_trt.occupying_player,other_trt))
+                    attack.append(" attacked "+other_trt.name+" with "+trt.name+" ("+str(troops)+") troops")
+                    attacks.append(attack)
+        return attacks
     
     def attack_pacifist(self,game):
         troops_num=self.get_new_troops()
@@ -148,14 +152,15 @@ class Player:
         stat, other_territory, my_territory = self.get_pacifist_territory(game,attackable)
         if not stat:
             self.pass_turn(game)
-            return True,"placed troops in "+least_troops_trt.name+" but couldn't find a territory to attack",''
+            return True,'',"placed troops in "+least_troops_trt.name+" but couldn't find a territory to attack"
         attacking_troops = len(my_territory.troops)-1
         if other_territory.occupying_player:
             other_player = game.players[other_territory.occupying_player.id]
         else:
-            other_player = game.players[0]
+            other_player = self
         attack,msg = self.attack(game,attacking_troops,my_territory,other_player,other_territory)
         if attack:
+            self.pass_turn(game)
             return attack,msg,"placed troops in "+least_troops_trt.name+" and attacked "+other_territory.name+" with "+my_territory.name
         else:
             self.pass_turn(game)
