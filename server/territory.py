@@ -9,7 +9,16 @@ class Territory:
 
     def __str__(self):
         return str(self.__class__) + ": " + str(self.__dict__)
-    
+
+    def get_bsr(self,game):
+        get = getattr(game,'get_territory')
+        self.bsr = sum([len(get(territory).troops) for territory in self.adjacent_territories if get(territory).troops]) / len(self.troops)
+        return self.bsr
+
+    def get_nbsr(self,game):
+        self.nbsr = self.get_bsr(game) / sum([trt.get_bsr(game) for trt in self.occupying_player.territories])
+        return self.nbsr
+
     def json(self):
         return {
             "name":self.name,

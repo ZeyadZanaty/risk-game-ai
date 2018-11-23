@@ -154,14 +154,3 @@ def join_game(id):
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-
-
-
-
-# from game import Game,GameMode
-
-# game = Game("USA",GameMode.HUMAN_VS_HUMAN.value)
-# game.start()
-
-# print(game.players[0].json())

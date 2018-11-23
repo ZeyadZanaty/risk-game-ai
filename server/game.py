@@ -5,7 +5,7 @@ from troop import Troop
 import random
 from enum import Enum
 
-starting_troops = 20
+starting_troops = 25
 usa_states = {"Alabama":["Mississippi","Tennessee","Florida","Georgia"],
   "Alaska":["Hawaii","California","Arizona"],
   "Arizona":["California","Nevada","Utah","New Mexico","Colorado"],
@@ -99,6 +99,7 @@ class Game:
         self.generate_players()
         self.generate_troops()
         self.update_state()
+        self.init_agents()
 
     def generate_map(self):
         self.territories = {}
@@ -117,7 +118,8 @@ class Game:
             self.players[i].set_goal_state(self)
 
     def generate_troops(self):
-        for i in range(0,self.players_num*10):
+        starting_troops = max(20,2*len(self.territories) // self.players_num)
+        for i in range(0,starting_troops):
             for player in self.players:
                 if player.troops is None:
                     player.troops=[]
@@ -127,13 +129,22 @@ class Game:
                 troop.assign_randomly(list(self.territories.values()))
                 player.troops.append(troop)
     
+    def init_agents(self):
+        for player in self.players:
+            if player.type in [4,5,6,7]:
+                player.init_agent(self)
+                moves= player.run_agnet(2)
+                print(moves)
+    
     def get_territory(self,name):
         return self.territories[name]
-    
+      
     def update_state(self):
         if self.state is None:
             self.state ={}
-        self.state = {trt.name:trt.occupying_player.id for trt in list(self.territories.values()) if trt.occupying_player}
+        # self.state = {trt.name:{'player_id':trt.occupying_player.id,'troops':len(trt.troops)} for trt in list(self.territories.values()) if trt.occupying_player}
+        self.state = {player.id:{str(trt.name):len(trt.troops) for trt in player.territories}  for player in self.players }
+        self.state[-1] = {trt.name:0 for trt in list(self.territories.values()) if trt.occupying_player is None}
         for i,player in enumerate(self.players):
             if player and len(player.territories)==0:
                 self.players[i] = None

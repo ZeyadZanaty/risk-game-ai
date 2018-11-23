@@ -1,6 +1,7 @@
 import numpy as np
 from troop import Troop
-starting_troops = 20
+starting_troops = 25
+from agent import Agent 
 
 class Player:
 
@@ -11,6 +12,7 @@ class Player:
         self.color = color
         self.type = type
         self.territories = territories
+        self.moves = None
 
     def __str__(self):
         return str(self.__class__) + ": " + str(self.__dict__)
@@ -55,7 +57,7 @@ class Player:
                     new_troop.assign(game,other_territory.name)
                     self.troops.append(new_troop)
             elif attacking_troops < other_troops:
-                for i in range(0,other_troops-attacking_troops):
+                for i in range(0,attacking_troops):
                     troop = other_territory.troops.pop()
                     other_player.troops.remove(troop)
             game.update_state()
@@ -75,10 +77,7 @@ class Player:
             self.troops.append(troop)
     
     def get_new_troops(self):
-        number_of_troops = int(len(self.territories)/3)
-        if number_of_troops <3:
-            number_of_troops = 3
-        return number_of_troops
+        return max(3,len(self.territories) // 3)
 
     def assign_new_troops(self,game,assigned_territories):
         for territory,troops in assigned_territories.items():
@@ -173,6 +172,25 @@ class Player:
             if (adj in self.territories) and len(adj.troops)>1:
                 return True,least,adj
         return False,None,None
+    
+    def init_agent(self,game):
+        assert self.type in [4,5,6,7]
+        if self.type == 4:
+            agent_type = 'greedy'
+        elif self.type == 5 or self.type == 6:
+            agent_type = 'a_star'
+        elif self.type == 7:
+            agent_type = 'minimax'
+        self.agent = Agent(agent_type,game,self)
+
+    def run_agnet(self,threshold):
+        self.moves = self.agent.run({'threshold':threshold})
+        turns = 0
+        for move in self.moves[2]:
+            if move['move_type']=="end_turn":
+                turns+=1
+        return self.moves,turns
+            
         
     def json(self):
         return {
@@ -182,7 +200,8 @@ class Player:
             "territories":[trty.json() for trty in self.territories],
             "score":self.score,
             "type":self.type,
-            "goal":self.goal_state
+            "goal":self.goal_state,
+            "moves":self.moves
             }
 
     def print(self):

@@ -158,22 +158,21 @@ export class GameComponent implements OnInit{
     }},200)
   }
 
-  onAttacking(territory){
+  async onAttacking(territory){
     this.attackeeTerritory = null;
-    for(let t of this.currentPlayer.territories){
+     for(let t of this.currentPlayer.territories){
       if(territory == t.name){
         this.currentAdjacents = t.adjacent_territories;
         this.attackingTerritory=t;
       }
     }
     this.attackableTerritories = [];
-    setTimeout(()=>{
-    for(let t of this.attackingTerritory.adjacent_territories){
+   for(let t of this.attackingTerritory.adjacent_territories){
       if(this.attackerTerritories.indexOf(t)==-1){
         this.attackableTerritories.push(t);
       }
-    }},200)
   }
+}
 
   onAttackee(territory){
     for(let t of this.game.territories){
