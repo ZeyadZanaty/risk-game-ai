@@ -183,8 +183,8 @@ class Player:
             agent_type = 'minimax'
         self.agent = Agent(agent_type,game,self)
 
-    def run_agnet(self,threshold):
-        self.moves = self.agent.run({'threshold':threshold})
+    def run_agnet(self,reinforce_threshold,attack_threshold):
+        self.moves = self.agent.run({'reinforce_threshold':reinforce_threshold,'attack_threshold':attack_threshold})
         turns = 0
         for move in self.moves[2]:
             if move['move_type']=="end_turn":

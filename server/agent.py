@@ -23,7 +23,7 @@ class Agent:
             goal_node = goal_node.parent
         return path
     
-    def a_star(self, threshold=1):
+    def a_star(self, reinforce_threshold=1,attack_threshold=2):
         start = timeit.default_timer()
         root = Node(self.game,self.game.state, self.player)
         frontier = PriorityQueue()
@@ -41,7 +41,7 @@ class Agent:
             if self.goal_test(node):
                 stop = timeit.default_timer()
                 return True,stop-start,self.get_path(node)
-            for n in node.get_neighbors(threshold):
+            for n in node.get_neighbors(reinforce_threshold,attack_threshold):
                 n.calculate_cost()
                 if n not in visited and n not in frontier_set:
                     frontier.put(n, n.cost)
@@ -51,7 +51,7 @@ class Agent:
         stop = timeit.default_timer()    
         return False,stop-start,self.get_path(node)
     
-    def greedy(self, threshold=1):
+    def greedy(self, reinforce_threshold=1,attack_threshold=2):
         start = timeit.default_timer()
         root = Node(self.game,self.game.state, self.player)
         root.calculate_heuristic()
@@ -70,7 +70,7 @@ class Agent:
             if self.goal_test(node):
                 stop = timeit.default_timer()
                 return True,start-stop,self.get_path(node)
-            for n in node.get_neighbors(threshold):
+            for n in node.get_neighbors(reinforce_threshold,attack_threshold):
                 n.calculate_heuristic()
                 if n not in visited and n not in frontier_set:
                     frontier.put(n, n.heuristic)

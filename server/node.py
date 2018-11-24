@@ -65,7 +65,7 @@ class Node:
         prev_action={'move_type':'end_turn'}))
         return children
 
-    def get_neighbors(self,threshold):
+    def get_neighbors(self,reinforce_threshold,attack_threshold):
         children = []
         trts = []
         sorted_trts = []
@@ -73,10 +73,10 @@ class Node:
             trts.append(territory)
         trts.sort(key=lambda x: self.bsr(x), reverse = True)
         if self.phase == 0:
-            sorted_trts = [self.game.get_territory(trt) for trt in trts if self.bsr(trt)>=threshold]
+            sorted_trts = [self.game.get_territory(trt) for trt in trts if self.bsr(trt)>=reinforce_threshold]
             children = self.get_reinforce(trts,sorted_trts)
         elif self.phase == 1:
-            sorted_trts = [self.game.get_territory(trt) for trt in trts if self.bsr(trt)<=threshold]
+            sorted_trts = [self.game.get_territory(trt) for trt in trts if self.bsr(trt)<=attack_threshold]
             if len(sorted_trts) <= 0 or self.depth%7 == 0:
                 children.append(Node(self.game,self.state,self.player,phase=0,parent=self,
         prev_action={'move_type':'end_turn'}))
