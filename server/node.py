@@ -1,5 +1,5 @@
 import numpy as np
-import copy
+import copy,random
 
 class Node:
     def __init__(self, game, state, player, phase=0, parent=None, depth=0, path_cost=0, cost=0,prev_action=None):
@@ -91,18 +91,6 @@ class Node:
                     return p
 
     def calculate_heuristic(self):
-        # self.heuristic = 0 
-        # for trt in self.state[self.player.id].keys():
-        #     self.heuristic+=1
-        # other_troops = 0
-        # my_troops = 0
-        # for player_id,territories in self.state.items():
-            # if player_id != self.player.id:
-                # other_troops+=sum([troops for troops in list(territories.values())])
-        #     if player_id == self.player.id:
-        #         my_troops+=sum([troops for troops in list(territories.values())])            
-        # self.heuristic  = (self.heuristic* my_troops)/other_troops
-        # self.heuristic = len(self.state[self.player.id].items())
         self.heuristic = sum([self.bsr(trt) for trt in self.state[self.player.id].keys()])-(len(self.state[self.player.id].items())-len(self.game.territories.items()))
 
     def calculate_cost(self):
@@ -122,18 +110,13 @@ class Node:
         elif previous_action['move_type'] == 'reinforce':
             self.state[self.player.id][previous_action['territory']]+=previous_action['troops']
         elif previous_action['move_type'] == 'attack':
-            #attack logic
-            attacking_troops = previous_action['troops']
-            attacking_trt = previous_action['attacking']
-            attacked_trt = previous_action['attacked']
-            attacked_player = previous_action['attacked_player']
-            attacked_troops = self.state[attacked_player][attacked_trt]
-            if attacked_troops == 0 or attacking_troops>=attacked_troops:
-                self.state[self.player.id][attacking_trt]-=attacking_troops
-                self.state[self.player.id][attacked_trt] = attacking_troops
-                self.state[attacked_player].pop(attacked_trt)
-            elif attacking_troops < attacked_troops:
-                self.state[attacked_player][attacked_trt]-=attacking_troops
+            self.attack(previous_action)
+            # if attacked_troops == 0 or attacking_troops>=attacked_troops:
+            #     self.state[self.player.id][attacking_trt]-=attacking_troops
+            #     self.state[self.player.id][attacked_trt] = attacking_troops
+            #     self.state[attacked_player].pop(attacked_trt)
+            # elif attacking_troops < attacked_troops:
+            #     self.state[attacked_player][attacked_trt]-=attacking_troops
         elif previous_action['move_type'] == 'end_turn':
             return
 
@@ -142,4 +125,36 @@ class Node:
         bsr = sum([self.state[self.get_trt_occupier(territory)][territory] for territory in get(trt).adjacent_territories if self.get_trt_occupier(territory)!=self.player.id])
         bsr =  bsr / self.state[self.player.id][trt]
         return bsr
+
+    def attack(self,previous_action):
+         #attack logic
+        attacking_troops = previous_action['troops']
+        attacking_trt = previous_action['attacking']
+        attacked_trt = previous_action['attacked']
+        attacked_player = previous_action['attacked_player']
+        # attacked_troops = self.state[attacked_player][attacked_trt]
+        lost = 0
+        attacking = copy.deepcopy(attacking_troops)
+        while attacking_troops >0:
+            attacker_dice = []
+            defender_dice = []
+            random.seed()
+            defender_dice=[random.randint(1, 6) for _ in range(0,min(3,attacking_troops))]
+            defender_dice.sort(reverse=True)
+            random.seed()
+            attacker_dice=[random.randint(1, 6) for _ in range(0,min(3,attacking_troops))]
+            attacker_dice.sort(reverse=True)
+            for i in range(0,min(3,attacking_troops)):
+                if attacker_dice[i] > defender_dice[i] and attacked_trt not in self.state[self.player.id].keys():
+                    if self.state[attacked_player][attacked_trt]>0:
+                        self.state[attacked_player][attacked_trt]-=1
+                    if self.state[attacked_player][attacked_trt] == 0:
+                        self.state[self.player.id][attacked_trt] = attacking-lost
+                        self.state[attacked_player].pop(attacked_trt)
+                        break
+                elif attacker_dice[i]<= defender_dice[i]  and attacked_trt not in self.state[self.player.id].keys():
+                    if self.state[self.player.id][attacking_trt]>0:
+                        self.state[self.player.id][attacking_trt]-=1
+                        lost+=1
+            attacking_troops-=3  
 

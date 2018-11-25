@@ -2,6 +2,8 @@ import numpy as np
 from troop import Troop
 starting_troops = 25
 from agent import Agent 
+import random
+import copy
 
 class Player:
 
@@ -42,26 +44,43 @@ class Player:
             game.update_state()
             return True, "That was easy"
         else:
-            other_troops = len(other_territory.troops)
-            if attacking_troops >= other_troops:
-                for i in range(0,len(other_territory.troops)):
-                    troop = other_territory.troops.pop()
-                    other_player.troops.remove(troop)
-                other_player.territories.remove(other_territory)
-                self.territories.append(other_territory)
-                other_territory.occupying_player = self
-                for i in range(0,attacking_troops):
-                    troop = my_territory.troops.pop()
-                    self.troops.remove(troop)
-                    new_troop = Troop(i,self,4)
-                    new_troop.assign(game,other_territory.name)
-                    self.troops.append(new_troop)
-            elif attacking_troops < other_troops:
-                for i in range(0,attacking_troops):
-                    troop = other_territory.troops.pop()
-                    other_player.troops.remove(troop)
+            won = 0
+            lost = 0
+            attacking = copy.deepcopy(attacking_troops)
+            while attacking_troops >0:
+                attacker_dice = []
+                defender_dice = []
+                random.seed()
+                defender_dice=[random.randint(1, 6) for _ in range(0,min(3,attacking_troops))]
+                defender_dice.sort(reverse=True)
+                random.seed()
+                attacker_dice=[random.randint(1, 6) for _ in range(0,min(3,attacking_troops))]
+                attacker_dice.sort(reverse=True)
+                for i in range(0,min(3,attacking_troops)):
+                    if attacker_dice[i] > defender_dice[i] and other_territory.occupying_player is not self:
+                        if len(other_territory.troops) > 0 :
+                            troop = other_territory.troops.pop()
+                            other_player.troops.remove(troop)
+                            won+=1
+                        if len(other_territory.troops) == 0:
+                            self.territories.append(other_territory)
+                            other_territory.occupying_player = self
+                            other_player.territories.remove(other_territory)
+                            for i in range(0,attacking-lost):
+                                troop = my_territory.troops.pop()
+                                self.troops.remove(troop)
+                                new_troop = Troop(i,self,4)
+                                new_troop.assign(game,other_territory.name)
+                                self.troops.append(new_troop)
+                            break
+                    elif attacker_dice[i]<= defender_dice[i] and other_territory.occupying_player is not self:
+                        if len(my_territory.troops)>0:
+                            troop=my_territory.troops.pop()
+                            self.troops.remove(troop)
+                            lost+=1
+                attacking_troops-=3 
             game.update_state()
-            return True, "You win the battle, but not the war"
+            return True, "Won "+str(won)+" battle(s) and lost "+str(lost)+" troops"
 
     def pass_turn(self,game):
         game.player_turn = (game.player_turn+1) % game.players_num
