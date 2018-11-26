@@ -148,10 +148,10 @@ class Node:
             attacker_dice = []
             defender_dice = []
             random.seed()
-            defender_dice=[random.randint(1, 6) for _ in range(0,min(3,attacking_troops))]
-            defender_dice.sort(reverse=True)
             attacker_dice=[random.randint(1, 6) for _ in range(0,min(3,attacking_troops))]
             attacker_dice.sort(reverse=True)
+            defender_dice=[random.randint(1, 6) for _ in range(0,min(3,attacking_troops))]
+            defender_dice.sort(reverse=True)
             for i in range(0,min(3,attacking_troops)):
                 if attacker_dice[i] > defender_dice[i] and attacked_trt not in self.state[self.player.id].keys():
                     if self.state[attacked_player][attacked_trt]>0:

@@ -57,7 +57,7 @@ class Player:
                 attacker_dice.sort(reverse=True)
                 defender_dice=[random.randint(1, 6) for _ in range(0,min(3,attacking_troops))]
                 defender_dice.sort(reverse=True)
-                print(attacker_dice,defender_dice)
+                print("DICE:",attacker_dice,defender_dice)
                 for i in range(0,min(3,attacking_troops)):
                     if attacker_dice[i] > defender_dice[i] and other_territory.occupying_player is not self:
                         if len(other_territory.troops) > 0 :
@@ -188,10 +188,16 @@ class Player:
 
     def get_pacifist_territory(self,game,attackable):
         least = min(attackable,key=lambda x:len(x.troops) if x.troops else 0)
+        print(least,attackable)
         for adjacent in least.adjacent_territories:
             adj = game.get_territory(adjacent)
             if (adj in self.territories) and len(adj.troops)>1:
                 return True,least,adj
+            else: 
+                if least in attackable:
+                    attackable.remove(least)
+        if attackable and len(attackable)>0:
+            return self.get_pacifist_territory(game,attackable)  
         return False,None,None
     
     def init_agent(self,game):
@@ -211,9 +217,7 @@ class Player:
         self.agent = Agent(agent_type,game,self,stochastic)
 
     def run_agnet(self,reinforce_threshold,attack_threshold):
-        if self.type == 4 or self.type == 5:
-            self.moves = self.agent.run({'reinforce_threshold':reinforce_threshold,'attack_threshold':attack_threshold})
-        elif self.type == 6:
+        if self.type == 4 or self.type == 5 or self.type == 6:
             self.moves = self.agent.run({'reinforce_threshold':reinforce_threshold,'attack_threshold':attack_threshold})
         turns = 0
         for move in self.moves[2]:
