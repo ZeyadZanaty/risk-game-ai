@@ -133,7 +133,8 @@ class Game:
         for player in self.players:
             if player.type in [4,5,6,7]:
                 player.init_agent(self)
-
+                # print(player.run_agnet(1,2))
+                
     def get_territory(self,name):
         return self.territories[name]
       

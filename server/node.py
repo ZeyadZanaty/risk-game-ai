@@ -59,9 +59,9 @@ class Node:
             for other in trt.adjacent_territories:
                 if other not in list(self.state[self.player.id].keys()):
                     troops = self.state[self.player.id][trt.name]-1
-                    if troops >1:
+                    if troops >=1:
                         for i in range(1,2):
-                            attack_troops = troops // i
+                            attack_troops = troops//i
                             children.append(Node(self.game,self.state,self.player,parent=self,
                             phase=1,prev_action={'move_type':'attack','attacking':trt.name,'troops':attack_troops,'attacked':other,
                             'attacked_player': self.get_trt_occupier(other)}))
@@ -81,7 +81,7 @@ class Node:
             children = self.get_reinforce(trts,sorted_trts)
         elif self.phase == 1:
             sorted_trts = [self.game.get_territory(trt) for trt in trts if self.bsr(trt)<=attack_threshold]
-            if len(sorted_trts) <= 0 or self.depth%7 == 0:
+            if len(sorted_trts) <= 0:
                 children.append(Node(self.game,self.state,self.player,phase=0,parent=self,
         prev_action={'move_type':'end_turn'}))
             else:
@@ -100,7 +100,10 @@ class Node:
     def calculate_heuristic(self):
         self.heuristic = sum([self.bsr(trt) for trt in self.state[self.player.id].keys()])-(len(self.state[self.player.id].items())-len(self.game.territories.items()))
         if  self.prev_action and self.prev_action['move_type'] == 'attack' and 'probability' in self.prev_action.keys():
-            self.heuristic/=self.prev_action['probability']
+            self.heuristic-=self.prev_action['probability']
+        if self.prev_action and self.prev_action['move_type'] =='end_turn':
+            if self.player.type in [4,6]:
+                self.heuristic+=3
 
     def calculate_cost(self):
         self.calculate_heuristic()
@@ -147,7 +150,6 @@ class Node:
             random.seed()
             defender_dice=[random.randint(1, 6) for _ in range(0,min(3,attacking_troops))]
             defender_dice.sort(reverse=True)
-            random.seed()
             attacker_dice=[random.randint(1, 6) for _ in range(0,min(3,attacking_troops))]
             attacker_dice.sort(reverse=True)
             for i in range(0,min(3,attacking_troops)):
@@ -166,15 +168,16 @@ class Node:
     
     def get_attack_with_prob(self,trts,sorted_trts):
         children = []
-        probability = 540/1296
+        probability = 0.3
         for trt in sorted_trts:
             for other in trt.adjacent_territories:
                 if other not in list(self.state[self.player.id].keys()):
                     troops = self.state[self.player.id][trt.name]-1
-                    if troops >1:
+                    if troops >=1:
                         for i in range(1,2):
-                            attack_troops = troops // i
-                            prob_list =list(map(lambda x :x*probability,self.get_prob_list(attack_troops)))
+                            attack_troops = troops//i
+                            probs= self.get_prob_list(attack_troops)
+                            prob_list =list(map(lambda x :(x*probability)/sum(probs),probs))
                             for j in range(0,attack_troops+1):
                                 children.append(Node(self.game,self.state,self.player,parent=self,
                                 phase=1,prev_action={'move_type':'attack','attacking':trt.name,'troops':attack_troops,'attacked':other,

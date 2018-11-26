@@ -68,7 +68,7 @@ export class GameComponent implements OnInit{
         {label:'Pacifist', value:3},
         {label:'Greedy', value:4},
         {label:'A*', value:5},
-        {label:'A*-Real-Time', value:6},
+        {label:'A* Real-Time', value:6},
         {label:'Minimax', value:7}
       ];
     this.game={'territories':[]}
