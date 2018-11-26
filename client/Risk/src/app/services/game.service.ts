@@ -65,5 +65,9 @@ export class GameService {
   attackPacifist(playerid,game){
     return this._http.put(this.serverUrl+'attack/pacifist/'+playerid,game,this.httpOptions).toPromise();
   }
+  
+  attackAgent(playerid,game){
+    return this._http.put(this.serverUrl+'attack/agent/'+playerid,game,this.httpOptions).toPromise();
+  }
 
 }

@@ -196,20 +196,48 @@ class Player:
         assert self.type in [4,5,6,7]
         if self.type == 4:
             agent_type = 'greedy'
+            stochastic = False
         elif self.type == 5 or self.type == 6:
             agent_type = 'a_star'
+            stochastic = False
         elif self.type == 7:
             agent_type = 'minimax'
-        self.agent = Agent(agent_type,game,self)
+            stochastic = False
+        self.agent = Agent(agent_type,game,self,stochastic)
 
     def run_agnet(self,reinforce_threshold,attack_threshold):
-        self.moves = self.agent.run({'reinforce_threshold':reinforce_threshold,'attack_threshold':attack_threshold})
+        if self.type == 4 or self.type == 5:
+            self.moves = self.agent.run({'reinforce_threshold':reinforce_threshold,'attack_threshold':attack_threshold})
+        elif self.type == 6:
+            self.moves = self.agent.run({'reinforce_threshold':reinforce_threshold,'attack_threshold':attack_threshold,'rt':True})
         turns = 0
         for move in self.moves[2]:
             if move['move_type']=="end_turn":
                 turns+=1
         return self.moves,turns
             
+    def get_move(self,game,reinforce_threshold,attack_threshold):
+        attacks = []
+        get = getattr(game,'get_territory')
+        self.run_agnet(reinforce_threshold,attack_threshold)
+        for move in self.moves[2]:
+            print(move)
+            if move['move_type'] == 'end_turn':
+                break
+            elif move['move_type'] == "reinforce":
+                troops_num=self.get_new_troops()
+                assinged_trt = move['territory']
+                self.assign_new_troops(game,{move['territory']:troops_num})
+            elif move['move_type'] =="attack":
+                if move['attacked_player'] == -1:
+                    move['attacked_player']=0
+                attack = list(self.attack(game,move['troops'],get(move['attacking'])
+                ,game.players[int(move['attacked_player'])],get(move['attacked'])))
+                attack.append(" attacked "+move['attacked']+" with "+move['attacking']+" ("+str(move['troops'])+") troops")
+                attacks.append(attack)
+        self.pass_turn(game)
+        return attacks,"placed troops in "+assinged_trt
+
         
     def json(self):
         return {

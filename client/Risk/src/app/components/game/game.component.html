@@ -48,7 +48,6 @@
           <button *ngIf="attackeeTerritory&&attackingTerritory" style="margin-right:10px;" (click)="onAttack()"  type="button"  class="btn btn-danger">Attack!</button>
           <button *ngIf="currentPlayer&&currentPlayer.type==0" (click)="onPass()"  type="button" class="btn btn-success">End Turn</button>
           <button *ngIf="currentPlayer&&currentPlayer.type!=0" (click)="onPass()"  type="button" class="btn btn-success">Next Turn</button>
-
         </div>
         </div>
         <div class="stats-2" *ngIf="gameStarted&&currentTerritoryHover">
@@ -105,3 +104,11 @@
   <button style="margin-left:30%" type="button" (click)="assignTroops()" pButton label="Assign"></button>
   </div>
 </p-dialog>
+
+
+<p-blockUI [blocked]="blocked">
+  <div style = "text-align:center; margin-top:100px;">
+  <h2 style="color:white">AI Thinking...</h2>
+  <p-progressSpinner [style]="{'margin-top':'100px',width: '50px', height: '50px'}" strokeWidth="8"  animationDuration=".5s"></p-progressSpinner>
+</div>
+</p-blockUI>

@@ -124,6 +124,17 @@ def attack_pacifist(playerid):
     response = jsonify(game_json)
     return response    
 
+@app.route('/attack/agent/<playerid>', methods=['PUT'])
+def get_move(playerid):
+    gameid = request.get_json()['gameID']
+    global game
+    attacks,place_msg = game[gameid].players[int(playerid)].get_move(game[gameid],1,2)
+    game_json = game[gameid].json()
+    game_json['attacks'] =[{"status":attack[0],"msg":attack[1],"ai_msg":attack[2]} for attack in attacks]
+    game_json['troops_msg']=place_msg
+    response = jsonify(game_json)
+    return response  
+
 @app.route('/pass/<id>', methods=['PUT'])
 def pass_turn(id):
     req = request.get_json()

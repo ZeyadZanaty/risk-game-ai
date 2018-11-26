@@ -2,7 +2,7 @@ import numpy as np
 import copy,random
 
 class Node:
-    def __init__(self, game, state, player, phase=0, parent=None, depth=0, path_cost=0, cost=0,prev_action=None):
+    def __init__(self, game, state, player, phase=0, parent=None, depth=0, path_cost=0, cost=0,prev_action=None, stochastic=False):
         self.game = game
         self.state = copy.deepcopy(state)
         self.player = player
@@ -14,6 +14,10 @@ class Node:
         self.cost = cost
         self.path_cost = path_cost
         self.phase = phase
+        if self.parent is None:
+            self.stochastic = stochastic
+        else:
+            self.stochastic = self.parent.stochastic
         self.prev_action = prev_action
         self.update_state()
 
@@ -81,7 +85,10 @@ class Node:
                 children.append(Node(self.game,self.state,self.player,phase=0,parent=self,
         prev_action={'move_type':'end_turn'}))
             else:
-                children = self.get_attack(trts,sorted_trts)
+                if self.stochastic:
+                    children = self.get_attack_with_prob(trts,sorted_trts)
+                else:
+                    children = self.get_attack(trts,sorted_trts)
         return children
 
     def get_trt_occupier(self,territory):
@@ -92,6 +99,8 @@ class Node:
 
     def calculate_heuristic(self):
         self.heuristic = sum([self.bsr(trt) for trt in self.state[self.player.id].keys()])-(len(self.state[self.player.id].items())-len(self.game.territories.items()))
+        if  self.prev_action and self.prev_action['move_type'] == 'attack' and 'probability' in self.prev_action.keys():
+            self.heuristic/=self.prev_action['probability']
 
     def calculate_cost(self):
         self.calculate_heuristic()
@@ -110,13 +119,10 @@ class Node:
         elif previous_action['move_type'] == 'reinforce':
             self.state[self.player.id][previous_action['territory']]+=previous_action['troops']
         elif previous_action['move_type'] == 'attack':
-            self.attack(previous_action)
-            # if attacked_troops == 0 or attacking_troops>=attacked_troops:
-            #     self.state[self.player.id][attacking_trt]-=attacking_troops
-            #     self.state[self.player.id][attacked_trt] = attacking_troops
-            #     self.state[attacked_player].pop(attacked_trt)
-            # elif attacking_troops < attacked_troops:
-            #     self.state[attacked_player][attacked_trt]-=attacking_troops
+            if self.stochastic:
+                self.attack_with_prob(previous_action)
+            else:
+                self.attack(previous_action)
         elif previous_action['move_type'] == 'end_turn':
             return
 
@@ -156,5 +162,59 @@ class Node:
                     if self.state[self.player.id][attacking_trt]>0:
                         self.state[self.player.id][attacking_trt]-=1
                         lost+=1
-            attacking_troops-=3  
+            attacking_troops-=3
+    
+    def get_attack_with_prob(self,trts,sorted_trts):
+        children = []
+        probability = 540/1296
+        for trt in sorted_trts:
+            for other in trt.adjacent_territories:
+                if other not in list(self.state[self.player.id].keys()):
+                    troops = self.state[self.player.id][trt.name]-1
+                    if troops >1:
+                        for i in range(1,2):
+                            attack_troops = troops // i
+                            prob_list =list(map(lambda x :x*probability,self.get_prob_list(attack_troops)))
+                            for j in range(0,attack_troops+1):
+                                children.append(Node(self.game,self.state,self.player,parent=self,
+                                phase=1,prev_action={'move_type':'attack','attacking':trt.name,'troops':attack_troops,'attacked':other,
+                                'attacked_player': self.get_trt_occupier(other),'won':j,'probability':prob_list[j]}))
+        children.append(Node(self.game,self.state,self.player,phase=0,parent=self,
+        prev_action={'move_type':'end_turn'}))
+        return children
 
+    def attack_with_prob(self,previous_action):
+         #attack logic
+        attacking_troops = previous_action['troops']
+        attacking_trt = previous_action['attacking']
+        attacked_trt = previous_action['attacked']
+        attacked_player = previous_action['attacked_player']
+        won = previous_action['won']
+        lost = attacking_troops-won
+        if won !=0:
+            if self.state[attacked_player][attacked_trt] == 0:
+                self.state[self.player.id][attacked_trt] = won
+                self.state[attacked_player].pop(attacked_trt)    
+            elif won >= self.state[attacked_player][attacked_trt]:
+                self.state[self.player.id][attacked_trt] = won
+                self.state[attacked_player].pop(attacked_trt)
+                self.state[self.player.id][attacking_trt]-=won 
+        elif won < self.state[attacked_player][attacked_trt]: 
+            self.state[self.player.id][attacking_trt]-=lost
+            self.state[attacked_player][attacked_trt]-=won
+
+    def get_prob_list(self,attacking):
+        arr = []
+        arr2 =[]
+        rev = False
+        for i in range(0,attacking+1):
+            v = (i+1)%((attacking//2)+1)
+            if v == 0:
+                rev = True
+                v = ((attacking//2)+1)
+            if rev:
+                arr2.append(v)
+            if not rev:
+                arr.append(v)
+            arr2.sort(reverse=True)
+        return arr+arr2

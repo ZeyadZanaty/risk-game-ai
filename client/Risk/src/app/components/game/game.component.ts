@@ -19,6 +19,7 @@ export class GameComponent implements OnInit{
   gameModes:any[];
   numberOptions:any[];
   gameStarted:boolean = false;
+  blocked:boolean = false;
   game:any;
   gameID:string;
   joinID:string;
@@ -238,6 +239,7 @@ export class GameComponent implements OnInit{
   }
 
   async attackAI(){
+    this.blocked = true;
     if(this.currentPlayer.type==1){
       await this.attackPassive();
     }
@@ -247,6 +249,20 @@ export class GameComponent implements OnInit{
     else if(this.currentPlayer.type==3){
       await this.attackPacifist();
     }
+    else if(this.currentPlayer.type==4){
+      await this.attackAgent("Greedy");
+    }
+    else if(this.currentPlayer.type==5){
+      await this.attackAgent("A*");
+    }
+    else if(this.currentPlayer.type==6){
+      await this.attackAgent("A* Real Time");
+    }
+    this.blocked = false;
+    // else if(this.currentPlayer.type==7){
+    //   await this.attackPacifist();
+    // }
+
   }
 
   async attackPassive(){
@@ -291,6 +307,7 @@ export class GameComponent implements OnInit{
     });
   }
 
+
   async attackPacifist(){
     console.log(this.currentPlayer.id);
     await this.gameService.attackPacifist(this.currentPlayer.id,{"gameID":this.gameID})
@@ -303,6 +320,33 @@ export class GameComponent implements OnInit{
     if(this.game.attack.status==false){
       this.messageService.add({severity:'error', summary: "AI failed", detail:"Pacifist AI "+ this.currentPlayer.id+" has made his attack and failed \n"+this.game.attack.msg});
 
+    }
+      this.currentPlayer = this.game.players[this.game.player_turn];
+      this.getAttackerTerritories(this.currentPlayer);
+
+    });
+  }
+
+  async attackAgent(typeName){
+    console.log(this.currentPlayer.id);
+    await this.gameService.attackAgent(this.currentPlayer.id,{"gameID":this.gameID})
+    .then(async game=>{
+      this.game = game;
+      console.log(game);
+      this.messageService.add({severity:'success', summary: "AI Bonus Troops", detail:typeName+" AI "+ this.currentPlayer.id+" has "+this.game.troops_msg});
+      if(this.game.attacks.length==0){
+        await this.messageService.add({severity:'error', summary: "AI failed", detail:typeName+" AI "+ this.currentPlayer.id+" couldn't make an attack"});
+      }
+    for(let attack of this.game.attacks){
+      if(attack.length==0){
+        await this.messageService.add({severity:'error', summary: "AI failed", detail:typeName+" AI "+ this.currentPlayer.id+" couldn't make an attack"});
+      }
+      if(attack.status==true){
+        await this.messageService.add({severity:'success', summary: "Congrats you played yourself", detail:typeName+" AI "+ this.currentPlayer.id+" has "+attack.ai_msg});
+      }
+      if(attack.status==false){
+        await this.messageService.add({severity:'error', summary: "AI failed", detail:typeName+" AI "+ this.currentPlayer.id+" has made his attack and failed \n"+attack.msg});
+      }
     }
       this.currentPlayer = this.game.players[this.game.player_turn];
       this.getAttackerTerritories(this.currentPlayer);
