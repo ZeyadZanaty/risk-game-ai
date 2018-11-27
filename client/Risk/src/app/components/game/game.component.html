@@ -44,11 +44,19 @@
           <p-spinner  id="spin" size="5" [(ngModel)]="attackingTroopsNum" [min]="1" [max]="attackingTerritory.troops.length-1"></p-spinner>
             troops
         </div>
-        <div>
+        <div *ngIf="gameMode!=2">
           <button *ngIf="attackeeTerritory&&attackingTerritory" style="margin-right:10px;" (click)="onAttack()"  type="button"  class="btn btn-danger">Attack!</button>
           <button *ngIf="currentPlayer&&currentPlayer.type==0" (click)="onPass()"  type="button" class="btn btn-success">End Turn</button>
           <button *ngIf="currentPlayer&&currentPlayer.type!=0" (click)="onPass()"  type="button" class="btn btn-success">Next Turn</button>
         </div>
+        <div *ngIf="gameMode==2">
+          <button *ngIf="!simulationStarted" style="margin-right:10px;" (click)="startSimulation()"  type="button"  class="btn btn-danger">Simulate</button>
+          <button  *ngIf="simulationStarted" (click)="onPause()"  type="button" class="btn btn-success">Pause</button>
+          <button *ngIf="!simulationStarted" (click)="onNextTrun()"  type="button" class="btn btn-success">Next Turn</button>
+            <div style="margin-left:30px">
+              <p-progressSpinner *ngIf="runningAI" [style]="{'margin-top':'100px',width: '50px', height: '50px'}" strokeWidth="8"  animationDuration=".5s"></p-progressSpinner>
+            </div>
+          </div>
         </div>
         <div class="stats-2" *ngIf="gameStarted&&currentTerritoryHover">
           <div *ngIf="gameStarted && currentPlayer" class="card text-white bg-dark mb-3" style="max-width: 18rem; margin-left:20px;">

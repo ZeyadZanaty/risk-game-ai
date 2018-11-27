@@ -139,17 +139,19 @@ class Game:
         return self.territories[name]
       
     def update_state(self):
-        if self.state is None:
-            self.state ={}
-        # self.state = {trt.name:{'player_id':trt.occupying_player.id,'troops':len(trt.troops)} for trt in list(self.territories.values()) if trt.occupying_player}
-        self.state = {player.id:{str(trt.name):len(trt.troops) for trt in player.territories}  for player in self.players }
-        self.state[-1] = {trt.name:0 for trt in list(self.territories.values()) if trt.occupying_player is None}
+        #TODO
+        #CHECK WINNER,HANDLE ELIMINATED PLAYERS
         for i,player in enumerate(self.players):
             if player and len(player.territories)==0:
                 self.players[i] = None
             if self.players[self.player_turn] is None:
                 self.player_turn = (self.player_turn+1) % self.players_num
-
+        if self.state is None:
+            self.state ={}
+        # self.state = {trt.name:{'player_id':trt.occupying_player.id,'troops':len(trt.troops)} for trt in list(self.territories.values()) if trt.occupying_player}
+        self.state = {player.id:{str(trt.name):len(trt.troops) for trt in player.territories}  for player in self.players if player }
+        self.state[-1] = {trt.name:0 for trt in list(self.territories.values()) if trt.occupying_player is None}
+       
 
     def json(self):
         return {
@@ -158,7 +160,7 @@ class Game:
             "players_num":self.players_num,
             "player_turn":self.player_turn,
             "state":self.state,
-            "players":[player.json() if player else None for player in self.players ],
+            "players":[player.json() if player else None for player in self.players],
             "occupied_territories":[trty.json()  for trty in list(self.territories.values()) if trty.occupying_player],
             "territories":[trty.json() for trty in list(self.territories.values())]
         }

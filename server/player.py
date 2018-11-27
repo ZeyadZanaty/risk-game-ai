@@ -23,7 +23,7 @@ class Player:
         self.goal_state = [self.id for trt in list(game.territories.items())]
 
     def attack(self,game,attacking_troops,my_territory,other_player,other_territory):
-        if attacking_troops > len(my_territory.troops):
+        if my_territory.troops and attacking_troops > len(my_territory.troops):
             attacking_troops = len(my_territory.troops)-1
         if my_territory not in self.territories:
             return False, "Selected territory is not yours"

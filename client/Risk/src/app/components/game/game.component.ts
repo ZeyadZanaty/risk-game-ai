@@ -39,6 +39,8 @@ export class GameComponent implements OnInit{
   attackingTroopsNum:number=1;
   selectedPlayerTypes:any=[];
   playerTypes:any=[];
+  simulationStarted:boolean = false;
+  runningAI:boolean = false;
   constructor(private gameService:GameService,private messageService: MessageService,
               private confirmationService:ConfirmationService) { }
 
@@ -95,8 +97,12 @@ export class GameComponent implements OnInit{
       console.log(game);
       this.currentPlayer = this.game.players[this.game.player_turn];
       this.gameID = this.game.game_id;
+      if(this.game.mode!=2){
       this.getAttackerTerritories(this.currentPlayer);
       setTimeout((this.getNewTroops()),100);
+      this.runningAI =false;
+      this.simulationStarted = false;
+    }
     });
   }
 
@@ -139,6 +145,23 @@ export class GameComponent implements OnInit{
       this.messageService.add({severity:'error', summary: 'Error', detail:"Game doesn't exit.."});
     }
     });
+  }
+
+  async startSimulation(){
+    this.simulationStarted = true;
+    if(this.gameMode==2&&this.gameStarted){
+      while(this.simulationStarted){
+        await this.attackAI();
+      }
+    }
+  }
+
+  onPause(){
+    this.simulationStarted = false;
+  }
+
+  async onNextTrun(){
+    this.attackAI();
   }
 
   getAttackerTerritories(player){
@@ -239,7 +262,9 @@ export class GameComponent implements OnInit{
   }
 
   async attackAI(){
+    if(this.gameMode!=2)
     this.blocked = true;
+    else this.runningAI = true;
     if(this.currentPlayer.type==1){
       await this.attackPassive();
     }
@@ -258,7 +283,9 @@ export class GameComponent implements OnInit{
     else if(this.currentPlayer.type==6){
       await this.attackAgent("A* Real Time");
     }
+    if(this.gameMode!=2)
     this.blocked = false;
+    else this.runningAI =false;
     // else if(this.currentPlayer.type==7){
     //   await this.attackPacifist();
     // }
