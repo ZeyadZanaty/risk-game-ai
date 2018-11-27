@@ -41,6 +41,8 @@ export class GameComponent implements OnInit{
   playerTypes:any=[];
   simulationStarted:boolean = false;
   runningAI:boolean = false;
+  gameOver:boolean = false;
+  winner:number;
   constructor(private gameService:GameService,private messageService: MessageService,
               private confirmationService:ConfirmationService) { }
 
@@ -152,6 +154,9 @@ export class GameComponent implements OnInit{
     if(this.gameMode==2&&this.gameStarted){
       while(this.simulationStarted){
         await this.attackAI();
+        if(this.gameOver){
+          break;
+        }
       }
     }
   }
@@ -161,7 +166,7 @@ export class GameComponent implements OnInit{
   }
 
   async onNextTrun(){
-    this.attackAI();
+    await this.attackAI();
   }
 
   getAttackerTerritories(player){
@@ -224,6 +229,10 @@ export class GameComponent implements OnInit{
           else if(this.currentPlayer&&this.currentPlayer.type!=0){
             await this.attackAI();
           }
+          await this.checkWinner();
+          if(this.gameOver){
+            break;
+          }
         }
     }
     else{
@@ -255,6 +264,7 @@ export class GameComponent implements OnInit{
     }
       if(this.game.attack.status==false)
       this.messageService.add({severity:'error', summary: 'Attack failed', detail:this.game.attack.msg});
+      this.checkWinner();
     });
     setTimeout(()=>this.attackeeTerritory=null,50);
     setTimeout(()=>this.attackingTerritory=null,50);
@@ -289,7 +299,7 @@ export class GameComponent implements OnInit{
     // else if(this.currentPlayer.type==7){
     //   await this.attackPacifist();
     // }
-
+    await this.checkWinner();
   }
 
   async attackPassive(){
@@ -453,6 +463,13 @@ export class GameComponent implements OnInit{
 
   getColor(territory){
     return territory.occupying_player!=null? this.game.players[territory.occupying_player].color:''
+  }
+
+  checkWinner(){
+    if(this.game&&this.game.game_over){
+      this.winner = this.game.game_over['winner']
+      this.gameOver = true;
+    }
   }
 
 }

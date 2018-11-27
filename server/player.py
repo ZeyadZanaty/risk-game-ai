@@ -188,7 +188,6 @@ class Player:
 
     def get_pacifist_territory(self,game,attackable):
         least = min(attackable,key=lambda x:len(x.troops) if x.troops else 0)
-        print(least,attackable)
         for adjacent in least.adjacent_territories:
             adj = game.get_territory(adjacent)
             if (adj in self.territories) and len(adj.troops)>1:
@@ -227,6 +226,7 @@ class Player:
             
     def get_move(self,game,reinforce_threshold,attack_threshold):
         attacks = []
+        assinged_trt=''
         get = getattr(game,'get_territory')
         self.run_agnet(reinforce_threshold,attack_threshold)
         for move in self.moves[2]:

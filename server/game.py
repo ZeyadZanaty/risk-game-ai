@@ -93,6 +93,7 @@ class Game:
         self.state = state
         self.map = map
         self.player_types = player_types
+        self.game_over = None
     
     def start(self):
         self.generate_map()
@@ -151,8 +152,14 @@ class Game:
         # self.state = {trt.name:{'player_id':trt.occupying_player.id,'troops':len(trt.troops)} for trt in list(self.territories.values()) if trt.occupying_player}
         self.state = {player.id:{str(trt.name):len(trt.troops) for trt in player.territories}  for player in self.players if player }
         self.state[-1] = {trt.name:0 for trt in list(self.territories.values()) if trt.occupying_player is None}
-       
+        self.check_winner()
+        
 
+    def check_winner(self):
+        check_list = [player.id for player in self.players if player]
+        if len(check_list)==1:
+            self.game_over={'over':True,'winner':check_list[0]}
+        
     def json(self):
         return {
             "map":self.map,
@@ -162,7 +169,8 @@ class Game:
             "state":self.state,
             "players":[player.json() if player else None for player in self.players],
             "occupied_territories":[trty.json()  for trty in list(self.territories.values()) if trty.occupying_player],
-            "territories":[trty.json() for trty in list(self.territories.values())]
+            "territories":[trty.json() for trty in list(self.territories.values())],
+            "game_over":self.game_over
         }
 
 class GameMode(Enum):

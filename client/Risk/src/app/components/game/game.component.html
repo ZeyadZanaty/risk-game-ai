@@ -53,7 +53,7 @@
           <button *ngIf="!simulationStarted" style="margin-right:10px;" (click)="startSimulation()"  type="button"  class="btn btn-danger">Simulate</button>
           <button  *ngIf="simulationStarted" (click)="onPause()"  type="button" class="btn btn-success">Pause</button>
           <button *ngIf="!simulationStarted" (click)="onNextTrun()"  type="button" class="btn btn-success">Next Turn</button>
-            <div style="margin-left:30px">
+            <div style="margin-left:20px">
               <p-progressSpinner *ngIf="runningAI" [style]="{'margin-top':'100px',width: '50px', height: '50px'}" strokeWidth="8"  animationDuration=".5s"></p-progressSpinner>
             </div>
           </div>
@@ -113,6 +113,13 @@
   </div>
 </p-dialog>
 
+<p-dialog header="Game Over" [contentStyle]="{'background':'rgba(255,255,255,0.9)'}" [(visible)]="gameOver" width="350">
+  <div style="text-align:center;">
+  <h3 style="margin-top:10px;">Player {{winner}} wins!</h3>
+  <br>
+  <button id="resetB" (click)="resetGame()" pButton type="button" label="New Game" class="ui-button-success"></button>
+</div>
+</p-dialog>
 
 <p-blockUI [blocked]="blocked">
   <div style = "text-align:center; margin-top:100px;">
