@@ -123,6 +123,8 @@ export class GameComponent implements OnInit{
                 this.gameMode =0;
                 this.attackingTerritory=null
                 this.attackeeTerritory=null;
+                this.runningAI =false;
+                this.simulationStarted = false;
               });
             },
             reject: () => {
@@ -293,12 +295,13 @@ export class GameComponent implements OnInit{
     else if(this.currentPlayer.type==6){
       await this.attackAgent("A* Real Time");
     }
+    else if(this.currentPlayer.type==7){
+      await this.attackAgent("Minimax");
+    }
     if(this.gameMode!=2)
     this.blocked = false;
     else this.runningAI =false;
-    // else if(this.currentPlayer.type==7){
-    //   await this.attackPacifist();
-    // }
+
     await this.checkWinner();
   }
 
@@ -470,6 +473,22 @@ export class GameComponent implements OnInit{
       this.winner = this.game.game_over['winner']
       this.gameOver = true;
     }
+  }
+
+  onNewGame(){
+    this.startGame();
+    this.gameOver = false;
+    this.simulationStarted = false;
+    this.runningAI = false;
+
+  }
+
+  onExit(){
+    this.resetGame();
+    this.gameOver = false;
+    this.simulationStarted = false;
+    this.runningAI = false;
+
   }
 
 }

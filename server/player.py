@@ -212,12 +212,14 @@ class Player:
             stochastic = False
         elif self.type == 7:
             agent_type = 'minimax'
-            stochastic = False
+            stochastic = True
         self.agent = Agent(agent_type,game,self,stochastic)
 
-    def run_agnet(self,reinforce_threshold,attack_threshold):
+    def run_agnet(self,reinforce_threshold=1,attack_threshold=2,phase=0):
         if self.type == 4 or self.type == 5 or self.type == 6:
             self.moves = self.agent.run({'reinforce_threshold':reinforce_threshold,'attack_threshold':attack_threshold})
+        else:
+            return self.agent.run({'phase':phase})
         turns = 0
         for move in self.moves[2]:
             if move and move['move_type']=="end_turn":
@@ -246,6 +248,31 @@ class Player:
                     attack.append(" attacked "+move['attacked']+" with "+move['attacking']+" ("+str(move['troops'])+") troops")
                     if attack[0]:
                         attacks.append(attack)
+        self.pass_turn(game)
+        return attacks,"placed troops in "+assinged_trt
+
+    def get_minimax_move(self,game):
+        attacks = []
+        assinged_trt=''
+        get = getattr(game,'get_territory')
+        res = self.run_agnet(phase=0)
+        move = res[2]
+        while move and move['move_type']!='end_turn':
+            print(move)
+            if move['move_type'] == "reinforce":
+                    troops_num=self.get_new_troops()
+                    assinged_trt = move['territory']
+                    self.assign_new_troops(game,{move['territory']:troops_num})
+            elif move['move_type'] =="attack":
+                if move['attacked_player'] == -1:
+                    move['attacked_player']=self.id
+                attack = list(self.attack(game,move['troops'],get(move['attacking'])
+                ,game.players[int(move['attacked_player'])],get(move['attacked'])))
+                attack.append(" attacked "+move['attacked']+" with "+move['attacking']+" ("+str(move['troops'])+") troops")
+                if attack[0]:
+                    attacks.append(attack)
+            res = self.run_agnet(phase=1)
+            move = res[2]
         self.pass_turn(game)
         return attacks,"placed troops in "+assinged_trt
 

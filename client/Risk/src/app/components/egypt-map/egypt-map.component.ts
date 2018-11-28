@@ -20,7 +20,8 @@ export class EgyptMapComponent implements OnInit {
   attackeeTerritory:string;
   @Input() allTerritories = [];
   currentTerritory:any;
-  colors=['red','blue','green'];
+  colors = ['#346ac3','#d23c2f','#e1a904','#191919','#326f26','#764dbe'];
+  coords = [];
   constructor(private messageService: MessageService) { }
 
   ngOnInit() {
@@ -41,9 +42,14 @@ export class EgyptMapComponent implements OnInit {
   }
 
   getTroops(territory){
-  let current = this.allTerritories.filter(x =>x.name ==territory);
-  if(current[0] && current[0].troops)
-    return current[0].troops.length
+    if(this.allTerritories&&this.allTerritories.length!=0){
+    let trt = this.allTerritories.filter(x =>x.name ==territory)[0];
+    if(trt.troops!=null){
+      return '\n'+trt.troops.length;
+    }
+    else return '\n'+0;
+    }
+    else return '';
   }
 
   onHover(event,territory){
@@ -59,7 +65,7 @@ export class EgyptMapComponent implements OnInit {
     this.currentTerritoryChange.emit(null);
     }
   }
-  
+
   getColor(territory){
     if(this.allTerritories.length!=0){
     let trt = this.allTerritories.filter(x =>x.name ==territory)[0];
@@ -69,6 +75,14 @@ export class EgyptMapComponent implements OnInit {
     else return 'transparent';
     }
     else return 'transparent';
+  }
+
+  onClick(evt){
+    let dim = evt.target.getBoundingClientRect();
+    let x = evt.clientX - dim.left;
+    let y = evt.clientY - dim.top;
+    this.coords.push([x,y]);
+    console.log(this.coords);
   }
 
 }

@@ -40,11 +40,10 @@ class Agent:
             move = node.prev_action['move_type'] if node.prev_action else None
             print("\n","player:",self.player.id,"depth:",node.depth,"territories:",len(node.state[self.player.id].items()),"move:",move,"cost:",node.cost,"visitied:",len(visited))
             visited.add(node)
-            # get_nps(start, visited)
             if self.goal_test(node):
                 stop = timeit.default_timer()
                 return True,stop-start,self.get_path(node)
-            if self.semi_goal_test(node) and timeit.default_timer()-start>60:
+            if self.semi_goal_test(node) and timeit.default_timer()-start>60  or timeit.default_timer()-start>70:
                 stop = timeit.default_timer()
                 return True,stop-start,self.get_path(node)
             for n in node.get_neighbors(reinforce_threshold,attack_threshold):
@@ -72,7 +71,6 @@ class Agent:
             move = node.prev_action['move_type'] if node.prev_action else None
             print("\n","player:",self.player.id,"depth:",node.depth,"territories:",len(node.state[self.player.id].items()),'move:',move,"cost:",node.heuristic,"visitied:",len(visited))
             visited.add(node)
-            # get_nps(start, visited)
             if self.goal_test(node):
                 stop = timeit.default_timer()
                 return True,start-stop,self.get_path(node)
@@ -122,7 +120,7 @@ class Agent:
             return node.cost,path
         if self.goal_test(node):
             return 'FOUND',path
-        if self.semi_goal_test(node) and timeit.default_timer()-start>15:
+        if (self.semi_goal_test(node) and timeit.default_timer()-start>15) or timeit.default_timer()-start>30:
             return 'FOUND',path
         if self.game.map =='USA':
             minimum = 200
@@ -136,3 +134,56 @@ class Agent:
             if t < minimum:
                 minimum = t
         return minimum,path
+
+    def minimize(self,node,alpha,beta,player):
+        node.player=player
+        if self.terminal_test(node):
+            return None, node.utility
+        min_child,min_utility = None,float('inf')
+        for child in node.get_neighbors(1,2):
+            child.calculate_utility()
+            if child.prev_action and child.prev_action['move_type']=='end_turn':
+                _,utility = self.maximize(child,alpha,beta)
+            else:
+                _,utility = self.minimize(child,alpha,beta,player)
+            if utility<min_utility:
+                min_child,min_utility = child,utility
+            if min_utility<=alpha:
+                break
+            if min_utility<beta:
+                beta = min_utility
+        return min_child,min_utility
+
+    def maximize(self,node,alpha,beta):
+        if self.terminal_test(node):
+            return None, node.utility
+        max_child,max_utility = None,float('-inf')
+        utility=0
+        for child in node.get_neighbors(1,2):
+            child.calculate_utility()
+            if child.prev_action and child.prev_action['move_type']=='end_turn':
+                for player in self.game.players:
+                    if player and player is not self.player:
+                        _,utility = self.minimize(child,alpha,beta,player)
+            else:
+                _,utility = self.maximize(child,alpha,beta)
+            if utility>max_utility:
+                max_child,max_utility = child,utility
+            if max_utility>=beta:
+                break
+            if max_utility>alpha:
+                beta = max_utility
+        return max_child,max_utility
+
+    def minimax(self,phase=0):
+        start = timeit.default_timer()
+        root = Node(self.game,self.game.state, self.player,stochastic=self.stochastic,phase=phase)
+        root.calculate_utility()
+        child,_ = self.maximize(root,float('-inf'),float('inf'))
+        prev_action = None
+        if child:
+            prev_action = child.prev_action
+        return True,timeit.default_timer()-start,prev_action
+    
+    def terminal_test(self,node):
+        return node.depth>3

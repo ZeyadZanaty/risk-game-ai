@@ -19,6 +19,8 @@ class Node:
         else:
             self.stochastic = self.parent.stochastic
         self.prev_action = prev_action
+        self. moves = []
+        self.children = []
         self.update_state()
 
     def __lt__(self, other):
@@ -97,6 +99,11 @@ class Node:
                 if trt == territory:
                     return p
 
+    def calculate_utility(self):
+        self.utility = sum([1/self.bsr(trt) if self.bsr(trt)!=0 else 0 for trt in self.state[self.player.id].keys()])+(len(self.state[self.player.id].items()))
+        if  self.prev_action and self.prev_action['move_type'] == 'attack' and 'probability' in self.prev_action.keys():
+            self.utility+=self.prev_action['probability']
+
     def calculate_heuristic(self):
         self.heuristic = sum([self.bsr(trt) for trt in self.state[self.player.id].keys()])-(len(self.state[self.player.id].items())-len(self.game.territories.items()))
         if  self.prev_action and self.prev_action['move_type'] == 'attack' and 'probability' in self.prev_action.keys():
@@ -168,7 +175,7 @@ class Node:
     
     def get_attack_with_prob(self,trts,sorted_trts):
         children = []
-        probability = 0.3
+        probability = 0.466
         for trt in sorted_trts:
             for other in trt.adjacent_territories:
                 if other not in list(self.state[self.player.id].keys()):

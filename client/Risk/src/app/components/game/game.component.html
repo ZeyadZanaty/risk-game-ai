@@ -113,11 +113,12 @@
   </div>
 </p-dialog>
 
-<p-dialog header="Game Over" [contentStyle]="{'background':'rgba(255,255,255,0.9)'}" [(visible)]="gameOver" width="350">
+<p-dialog header="Game Over" [contentStyle]="{'background':'rgba(255,255,255,0.9)'}" [(visible)]="gameOver">
   <div style="text-align:center;">
-  <h3 style="margin-top:10px;">Player {{winner}} wins!</h3>
+  <h6 style="margin-top:10px;">Player {{winner}} has conqured {{map}}!</h6>
   <br>
-  <button id="resetB" (click)="resetGame()" pButton type="button" label="New Game" class="ui-button-success"></button>
+  <button (click)="onNewGame()" pButton type="button" label="New" class="ui-button-success"></button>
+  <button  style="margin-left:20px;"(click)="onExit()" pButton type="button" label="Reset" class="ui-button-danger"></button>
 </div>
 </p-dialog>
 
