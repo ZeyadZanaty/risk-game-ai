@@ -135,6 +135,7 @@ class Game:
             if player.type in [4,5,6,7]:
                 player.init_agent(self)
                 # print(player.get_minimax_move(self))
+                # print(player.run_agnet(1,2))
             
     def get_territory(self,name):
         return self.territories[name]
@@ -156,9 +157,9 @@ class Game:
         
 
     def check_winner(self):
-        check_list = [player.id for player in self.players if player]
+        check_list = [player for player in self.players if player]
         if len(check_list)==1:
-            self.game_over={'over':True,'winner':check_list[0]}
+            self.game_over={'over':True,'winner':check_list[0].id,'turns':check_list[0].turns_played}
         
     def json(self):
         return {

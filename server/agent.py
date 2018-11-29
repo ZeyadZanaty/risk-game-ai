@@ -19,7 +19,7 @@ class Agent:
             return agent_call(**params)
     
     def get_path(self,goal_node):
-        print(goal_node.state)
+        print("GOAL:",goal_node.state,goal_node.prev_action)
         path = []
         while goal_node.parent != None:
             path.insert(0, goal_node.prev_action)
@@ -43,7 +43,7 @@ class Agent:
             if self.goal_test(node):
                 stop = timeit.default_timer()
                 return True,stop-start,self.get_path(node)
-            if self.semi_goal_test(node) and timeit.default_timer()-start>60  or timeit.default_timer()-start>70:
+            if self.semi_goal_test(node) and timeit.default_timer()-start>40  or timeit.default_timer()-start>70:
                 stop = timeit.default_timer()
                 return True,stop-start,self.get_path(node)
             for n in node.get_neighbors(reinforce_threshold,attack_threshold):
@@ -119,7 +119,7 @@ class Agent:
         if node.cost > bound:
             return node.cost,path
         if self.goal_test(node):
-            return 'FOUND',path
+            return 'FOUND',self.get_path(node)
         if (self.semi_goal_test(node) and timeit.default_timer()-start>15) or timeit.default_timer()-start>30:
             return 'FOUND',path
         if self.game.map =='USA':
@@ -137,6 +137,8 @@ class Agent:
 
     def minimize(self,node,alpha,beta,player):
         node.player=player
+        move = node.prev_action['move_type'] if node.prev_action else None
+        print("\nMIN:","player:",node.player.id,"depth:",node.depth,"territories:",len(node.state[node.player.id].items()),'move:',move,"cost:",node.utility)
         if self.terminal_test(node):
             return None, node.utility
         min_child,min_utility = None,float('inf')
@@ -155,6 +157,8 @@ class Agent:
         return min_child,min_utility
 
     def maximize(self,node,alpha,beta):
+        move = node.prev_action['move_type'] if node.prev_action else None
+        print("\nMAX:","player:",node.player.id,"depth:",node.depth,"territories:",len(node.state[node.player.id].items()),'move:',move,"cost:",node.utility)
         if self.terminal_test(node):
             return None, node.utility
         max_child,max_utility = None,float('-inf')
@@ -186,4 +190,4 @@ class Agent:
         return True,timeit.default_timer()-start,prev_action
     
     def terminal_test(self,node):
-        return node.depth>3
+        return node.depth>4

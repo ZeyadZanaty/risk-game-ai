@@ -15,6 +15,7 @@ class Player:
         self.type = type
         self.territories = territories
         self.moves = None
+        self.turns_played = 0
 
     def __str__(self):
         return str(self.__class__) + ": " + str(self.__dict__)
@@ -86,6 +87,7 @@ class Player:
 
     def pass_turn(self,game):
         game.player_turn = (game.player_turn+1) % game.players_num
+        self.turns_played+=1
         game.update_state()
 
     def get_reinforcemnets(self,territories):
@@ -203,16 +205,16 @@ class Player:
         assert self.type in [4,5,6,7]
         if self.type == 4:
             agent_type = 'greedy'
-            stochastic = False
+            stochastic = False #always shite
         elif self.type == 5 :
             agent_type = 'a_star'
-            stochastic = False
+            stochastic = False #very slow when True,but much better
         elif self.type ==6:
             agent_type = 'id_a_star'
-            stochastic = False
+            stochastic = False #not that much better when True
         elif self.type == 7:
             agent_type = 'minimax'
-            stochastic = True
+            stochastic = True #much worse when False
         self.agent = Agent(agent_type,game,self,stochastic)
 
     def run_agnet(self,reinforce_threshold=1,attack_threshold=2,phase=0):
@@ -286,7 +288,8 @@ class Player:
             "score":self.score,
             "type":self.type,
             "goal":self.goal_state,
-            "moves":self.moves
+            "moves":self.moves,
+            "turns":self.turns_played
             }
 
     def print(self):

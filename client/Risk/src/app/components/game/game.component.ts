@@ -43,6 +43,7 @@ export class GameComponent implements OnInit{
   runningAI:boolean = false;
   gameOver:boolean = false;
   winner:number;
+  turns:number;
   constructor(private gameService:GameService,private messageService: MessageService,
               private confirmationService:ConfirmationService) { }
 
@@ -470,7 +471,8 @@ export class GameComponent implements OnInit{
 
   checkWinner(){
     if(this.game&&this.game.game_over){
-      this.winner = this.game.game_over['winner']
+      this.winner = this.game.game_over['winner'];
+      this.turns = this.game.game_over['turns'];
       this.gameOver = true;
     }
   }
@@ -486,9 +488,6 @@ export class GameComponent implements OnInit{
   onExit(){
     this.resetGame();
     this.gameOver = false;
-    this.simulationStarted = false;
-    this.runningAI = false;
-
   }
 
 }

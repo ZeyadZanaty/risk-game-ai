@@ -116,7 +116,8 @@
 <p-dialog header="Game Over" [contentStyle]="{'background':'rgba(255,255,255,0.9)'}" [(visible)]="gameOver">
   <div style="text-align:center;">
   <h6 style="margin-top:10px;">Player {{winner}} has conqured {{map}}!</h6>
-  <br>
+  <span style="margin-bottom:10px;margin-top:10px;"> In {{turns}} truns </span>
+  <br><br>
   <button (click)="onNewGame()" pButton type="button" label="New" class="ui-button-success"></button>
   <button  style="margin-left:20px;"(click)="onExit()" pButton type="button" label="Reset" class="ui-button-danger"></button>
 </div>

@@ -67,8 +67,9 @@ class Node:
                             children.append(Node(self.game,self.state,self.player,parent=self,
                             phase=1,prev_action={'move_type':'attack','attacking':trt.name,'troops':attack_troops,'attacked':other,
                             'attacked_player': self.get_trt_occupier(other)}))
-        children.append(Node(self.game,self.state,self.player,phase=0,parent=self,
-        prev_action={'move_type':'end_turn'}))
+        if self.parent and self.parent.prev_action and self.parent.prev_action['move_type']!='reinforce':
+            children.append(Node(self.game,self.state,self.player,phase=0,parent=self,
+            prev_action={'move_type':'end_turn'}))
         return children
 
     def get_neighbors(self,reinforce_threshold,attack_threshold):
@@ -77,13 +78,16 @@ class Node:
         sorted_trts = []
         for territory in list(self.state[self.player.id].keys()):
             trts.append(territory)
-        trts.sort(key=lambda x: self.bsr(x), reverse = True)
         if self.phase == 0:
+            trts.sort(key=lambda x: self.bsr(x), reverse = True)
             sorted_trts = [self.game.get_territory(trt) for trt in trts if self.bsr(trt)>=reinforce_threshold]
+            if len(sorted_trts)==0:
+                sorted_trts = [self.game.get_territory(trt) for trt in trts]
             children = self.get_reinforce(trts,sorted_trts)
         elif self.phase == 1:
-            sorted_trts = [self.game.get_territory(trt) for trt in trts if self.bsr(trt)<=attack_threshold]
-            if len(sorted_trts) <= 0:
+            trts.sort(key=lambda x: self.bsr(x))
+            sorted_trts = [self.game.get_territory(trt) for trt in trts if self.bsr(trt)<=attack_threshold and self.state[self.player.id][trt]>1]
+            if len(sorted_trts) == 0:
                 children.append(Node(self.game,self.state,self.player,phase=0,parent=self,
         prev_action={'move_type':'end_turn'}))
             else:
@@ -186,11 +190,18 @@ class Node:
                             probs= self.get_prob_list(attack_troops)
                             prob_list =list(map(lambda x :(x*probability)/sum(probs),probs))
                             for j in range(0,attack_troops+1):
+                                other_player =  self.get_trt_occupier(other)
+                                if self.state[other_player][other] ==0:
+                                    children.append(Node(self.game,self.state,self.player,parent=self,
+                                    phase=1,prev_action={'move_type':'attack','attacking':trt.name,'troops':attack_troops,'attacked':other,
+                                    'attacked_player': self.get_trt_occupier(other),'won':attack_troops,'probability':1}))
+                                    break
                                 children.append(Node(self.game,self.state,self.player,parent=self,
                                 phase=1,prev_action={'move_type':'attack','attacking':trt.name,'troops':attack_troops,'attacked':other,
-                                'attacked_player': self.get_trt_occupier(other),'won':j,'probability':prob_list[j]}))
-        children.append(Node(self.game,self.state,self.player,phase=0,parent=self,
-        prev_action={'move_type':'end_turn'}))
+                                'attacked_player': other_player,'won':j,'probability':prob_list[j]}))
+        if self.parent and self.parent.prev_action and self.parent.prev_action['move_type']!='reinforce':
+            children.append(Node(self.game,self.state,self.player,phase=0,parent=self,
+            prev_action={'move_type':'end_turn'}))
         return children
 
     def attack_with_prob(self,previous_action):
