@@ -108,6 +108,7 @@ class Player:
                 troop = Troop(i,self,3)
                 troop.assign(game,territory)
                 self.troops.append(troop)
+        game.update_state()
 
     def get_attackable_territories(self,game):
         attackable_territories = []

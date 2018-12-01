@@ -105,7 +105,7 @@ class Agent:
             t,path = self.search(root,0, bound,reinforce_threshold,attack_threshold,start)
             if t == 'FOUND':
                 stop = timeit.default_timer()
-                return True,stop-start,path,
+                return True,stop-start,path
             if t == minimum:
                 stop = timeit.default_timer()
                 return False,stop-start,path
@@ -121,7 +121,7 @@ class Agent:
         if self.goal_test(node):
             return 'FOUND',self.get_path(node)
         if (self.semi_goal_test(node) and timeit.default_timer()-start>15) or timeit.default_timer()-start>30:
-            return 'FOUND',path
+            return 'FOUND',self.get_path(node)
         if self.game.map =='USA':
             minimum = 200
         else: minimum = 100
@@ -137,12 +137,13 @@ class Agent:
 
     def minimize(self,node,alpha,beta,player):
         node.player=player
-        move = node.prev_action['move_type'] if node.prev_action else None
-        print("\nMIN:","player:",node.player.id,"depth:",node.depth,"territories:",len(node.state[node.player.id].items()),'move:',move,"cost:",node.utility)
-        if self.terminal_test(node):
+        # move = node.prev_action['move_type'] if node.prev_action else None
+        # print("\nMIN:","player:",node.player.id,"depth:",node.depth,"territories:",len(node.state[node.player.id].items()),'move:',move,"cost:",node.utility)
+        if self.terminal_test(node) or self.goal_test(node):
             return None, node.utility
         min_child,min_utility = None,float('inf')
-        for child in node.get_neighbors(1,2):
+        children =  node.get_neighbors(1,2)
+        for child in children:
             child.calculate_utility()
             if child.prev_action and child.prev_action['move_type']=='end_turn':
                 _,utility = self.maximize(child,alpha,beta)
@@ -157,13 +158,18 @@ class Agent:
         return min_child,min_utility
 
     def maximize(self,node,alpha,beta):
-        move = node.prev_action['move_type'] if node.prev_action else None
-        print("\nMAX:","player:",node.player.id,"depth:",node.depth,"territories:",len(node.state[node.player.id].items()),'move:',move,"cost:",node.utility)
-        if self.terminal_test(node):
+        # move = node.prev_action['move_type'] if node.prev_action else None
+        # print("\nMAX:","player:",node.player.id,"depth:",node.depth,"territories:",len(node.state[node.player.id].items()),'move:',move,"cost:",node.utility)
+        if self.terminal_test(node) or self.goal_test(node):
             return None, node.utility
         max_child,max_utility = None,float('-inf')
         utility=0
-        for child in node.get_neighbors(1,2):
+        children =  node.get_neighbors(1,2)
+        if len(children)==1 and children[0].prev_action and node.parent is None:
+            children[0].calculate_utility()
+            print("\nONLY CHILD TO ROOT NODE ",children[0].prev_action)
+            return children[0], children[0].utility
+        for child in children:
             child.calculate_utility()
             if child.prev_action and child.prev_action['move_type']=='end_turn':
                 for player in self.game.players:

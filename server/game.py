@@ -134,15 +134,11 @@ class Game:
         for player in self.players:
             if player.type in [4,5,6,7]:
                 player.init_agent(self)
-                # print(player.get_minimax_move(self))
-                # print(player.run_agnet(1,2))
             
     def get_territory(self,name):
         return self.territories[name]
       
     def update_state(self):
-        #TODO
-        #CHECK WINNER,HANDLE ELIMINATED PLAYERS
         for i,player in enumerate(self.players):
             if player and len(player.territories)==0:
                 self.players[i] = None
@@ -150,7 +146,6 @@ class Game:
                 self.player_turn = (self.player_turn+1) % self.players_num
         if self.state is None:
             self.state ={}
-        # self.state = {trt.name:{'player_id':trt.occupying_player.id,'troops':len(trt.troops)} for trt in list(self.territories.values()) if trt.occupying_player}
         self.state = {player.id:{str(trt.name):len(trt.troops) for trt in player.territories}  for player in self.players if player }
         self.state[-1] = {trt.name:0 for trt in list(self.territories.values()) if trt.occupying_player is None}
         self.check_winner()

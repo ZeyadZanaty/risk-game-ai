@@ -466,7 +466,7 @@ export class GameComponent implements OnInit{
   }
 
   getColor(territory){
-    return territory.occupying_player!=null? this.game.players[territory.occupying_player].color:''
+    return territory.occupying_player!=null && this.game.players[territory.occupying_player]? this.game.players[territory.occupying_player].color:''
   }
 
   checkWinner(){

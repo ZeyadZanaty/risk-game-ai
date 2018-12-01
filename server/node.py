@@ -67,7 +67,7 @@ class Node:
                             children.append(Node(self.game,self.state,self.player,parent=self,
                             phase=1,prev_action={'move_type':'attack','attacking':trt.name,'troops':attack_troops,'attacked':other,
                             'attacked_player': self.get_trt_occupier(other)}))
-        if self.parent and self.parent.prev_action and self.parent.prev_action['move_type']!='reinforce':
+        if self.parent and self.parent.prev_action and self.parent.prev_action['move_type']!='reinforce' and self.player.type!=4:
             children.append(Node(self.game,self.state,self.player,phase=0,parent=self,
             prev_action={'move_type':'end_turn'}))
         return children
