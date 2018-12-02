@@ -8,6 +8,7 @@ Risk board game webapp implemented in python with angular 6
 - Angular 6
 - Primeng
 
+## Playing Agents
 AI Agents implemented are:
 - A* Search 
 - IDA* Search 
