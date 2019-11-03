@@ -27,10 +27,11 @@ Non-AI Agents implemented are:
 
 ## Running
 
-- Install python3, flask, angular 6
+- Install python 3.6+, angular 6
+- Install python requirements by running `pip install -r requirements.txt`
 - cd into /server
-- Run `python3 server.py`
+- Run `python server.py`
 - cd into /client/Risk
 - Run `npm install`
 - Run `ng s`
-- go to localhost:4200 in your browser and start playing
+- go to `localhost:4200` in your browser and start playing
